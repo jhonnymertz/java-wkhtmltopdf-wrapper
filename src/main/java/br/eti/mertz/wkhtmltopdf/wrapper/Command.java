@@ -1,26 +1,14 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
-import java.util.List;
 
-import lombok.Data;
-import lombok.NonNull;
-
-@Data
 public class Command {
 	
-	@NonNull
-	private String name;
-	
-	private List<Param> params;
-	
-	public void addParams(Param... params){
-		for(Param param : params){
-			addParam(param);
-		}
-	}
-	
-	public void addParam(Param param){
-		params.add(param);
+	public static void main(String[] args) {
+		Pdf pdf = new Pdf();
+		
+		pdf.getParams().add(new Param("enable-javascript"), new Param("html-header", "file:///lala.html"));
+		
+		System.out.println(pdf);
 	}
 
 }
