@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-public class Param{
+public class Param {
 
 	@NonNull
 	private String key;
@@ -15,15 +15,16 @@ public class Param{
 		this.key = key;
 		this.value = value;
 	}
-	
+
 	public Param(String key) {
 		this(key, null);
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder().append(Symbol.separator)
-				.append(Symbol.param).append(key).append(Symbol.separator)
-				.append(value);
+				.append(Symbol.param).append(key);
+		if (value != null)
+			sb.append(Symbol.separator).append(value);
 		return sb.toString();
 	}
 
