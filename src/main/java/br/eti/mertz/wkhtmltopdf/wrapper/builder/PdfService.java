@@ -6,7 +6,5 @@ import br.eti.mertz.wkhtmltopdf.wrapper.Command;
 
 public interface PdfService {
 	
-	File execute(Command command){
-		
-	}
+	File execute(Command command);
 }
