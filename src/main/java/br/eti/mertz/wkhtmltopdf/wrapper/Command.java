@@ -4,11 +4,11 @@ package br.eti.mertz.wkhtmltopdf.wrapper;
 public class Command {
 	
 	public static void main(String[] args) {
+
 		Pdf pdf = new Pdf();
-		
-		pdf.addParam(new Param("enable-javascript"), new Param("html-header", "file:///lala.html"));
-		
+		pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///lala.html"));
 		System.out.println(pdf);
+
 	}
 
 }

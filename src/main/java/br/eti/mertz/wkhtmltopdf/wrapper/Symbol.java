@@ -2,11 +2,11 @@ package br.eti.mertz.wkhtmltopdf.wrapper;
 
 public enum Symbol {
 
-	separator(" "), param("--");
+	separator(" "), param("");
 
 	private String symbol;
 
-	private Symbol(String symbol) {
+	Symbol(String symbol) {
 		this.symbol = symbol;
 	}
 

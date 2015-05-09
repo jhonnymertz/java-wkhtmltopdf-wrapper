@@ -5,12 +5,12 @@ import java.io.IOException;
 
 public interface PdfService {
 	
-	public void addPage(String page);
+	void addHtmlInput(String page);
 	
-	public void addCover(String cover);
+	void addCover(String cover);
 	
-	public void addToc();
+	void addToc();
 	
-	public File saveAs(String path) throws IOException, InterruptedException;
+	File saveAs(String path) throws IOException, InterruptedException;
 
 }
