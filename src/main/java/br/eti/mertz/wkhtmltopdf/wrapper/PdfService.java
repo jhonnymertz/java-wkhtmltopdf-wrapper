@@ -13,4 +13,5 @@ public interface PdfService {
 	
 	File saveAs(String path) throws IOException, InterruptedException;
 
+	byte[] getPDF() throws IOException, InterruptedException;
 }

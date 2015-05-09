@@ -1,8 +1,6 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,28 +63,55 @@ public class Pdf implements PdfService {
 	}
 
 	/**
-	 * TODO save file and returns
-	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
 	public File saveAs(String path) throws IOException, InterruptedException {
-		Runtime rt = Runtime.getRuntime();
-        String command = this.commandWithParameters() + Symbol.separator + path;
-        Process proc = rt.exec(command);
-        if(htmlFromString) {
-            OutputStream stdin = proc.getOutputStream();
-            stdin.write(htmlInput.getBytes());
-            stdin.close();
-        }
+        byte[] pdf = this.getPDF();
+        File file = new File(path);
 
-		proc.waitFor();
-        if(proc.exitValue() != 0) {
-            throw new RuntimeException("Process (" + command + ") exited with status code " + proc.exitValue());
-        }
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
+        bufferedOutputStream.write(pdf);
+        bufferedOutputStream.flush();
+        bufferedOutputStream.close();
 
-		return new File(path);
+        return file;
 	}
+
+    public byte[] getPDF() throws IOException, InterruptedException {
+        Runtime runtime = Runtime.getRuntime();
+        if(htmlFromString && !this.params.contains(new Param("-"))) {
+            this.addParam(new Param("-"));
+        }
+        String command = this.commandWithParameters() + Symbol.separator + "-";
+        Process process = runtime.exec(command);
+        if(htmlFromString) {
+            OutputStream stdInStream = process.getOutputStream();
+            stdInStream.write(htmlInput.getBytes());
+            stdInStream.close();
+        }
+        InputStream stdOutStream = process.getInputStream();
+        InputStream stdErrStream = process.getErrorStream();
+        process.waitFor();
+
+        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+
+        for(int i = 0; i < stdOutStream.available(); i++) {
+            stdOut.write((char) stdOutStream.read());
+        }
+        stdOutStream.close();
+        for(int i = 0; i < stdErrStream.available(); i++) {
+            stdErr.write((char) stdErrStream.read());
+        }
+        stdErrStream.close();
+
+        if(process.exitValue() != 0) {
+            throw new RuntimeException("Process (" + command + ") exited with status code " + process.exitValue() + ":\n"+new String(stdErr.toByteArray()));
+        }
+
+        return stdOut.toByteArray();
+    }
 
 	public String commandWithParameters() {
 		StringBuilder sb = new StringBuilder();
