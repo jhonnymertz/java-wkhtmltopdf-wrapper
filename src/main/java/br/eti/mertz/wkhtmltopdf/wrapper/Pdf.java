@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 public class Pdf implements PdfService {
 
+    static final String STDOUT = "-";
+
 	private String command;
 	private List<Param> params;
 	private String htmlInput = null;
@@ -67,23 +69,28 @@ public class Pdf implements PdfService {
 	 * @throws InterruptedException
 	 */
 	public File saveAs(String path) throws IOException, InterruptedException {
-        byte[] pdf = this.getPDF();
+        File file = new File(path);
+        getPDF(path);
+        return file;
+	}
+
+    public File saveAs(String path, byte[] document) throws IOException {
         File file = new File(path);
 
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
-        bufferedOutputStream.write(pdf);
+        bufferedOutputStream.write(document);
         bufferedOutputStream.flush();
         bufferedOutputStream.close();
 
         return file;
-	}
+    }
 
-    public byte[] getPDF() throws IOException, InterruptedException {
+    public byte[] getPDF(String path) throws IOException, InterruptedException {
         Runtime runtime = Runtime.getRuntime();
         if(htmlFromString && !this.params.contains(new Param("-"))) {
             this.addParam(new Param("-"));
         }
-        String command = this.commandWithParameters() + Symbol.separator + "-";
+        String command = this.commandWithParameters() + Symbol.separator + path;
         Process process = runtime.exec(command);
         if(htmlFromString) {
             OutputStream stdInStream = process.getOutputStream();
@@ -97,11 +104,11 @@ public class Pdf implements PdfService {
         ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
         ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
 
-        for(int i = 0; i < stdOutStream.available(); i++) {
+        while(stdOutStream.available()>0) {
             stdOut.write((char) stdOutStream.read());
         }
         stdOutStream.close();
-        for(int i = 0; i < stdErrStream.available(); i++) {
+        while(stdErrStream.available()>0) {
             stdErr.write((char) stdErrStream.read());
         }
         stdErrStream.close();
@@ -111,6 +118,10 @@ public class Pdf implements PdfService {
         }
 
         return stdOut.toByteArray();
+    }
+
+    public byte[] getPDF() throws IOException, InterruptedException {
+        return getPDF(STDOUT);
     }
 
 	public String commandWithParameters() {
