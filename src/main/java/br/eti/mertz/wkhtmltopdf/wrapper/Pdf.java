@@ -94,7 +94,7 @@ public class Pdf implements PdfService {
         Process process = runtime.exec(command);
         if(htmlFromString) {
             OutputStream stdInStream = process.getOutputStream();
-            stdInStream.write(htmlInput.getBytes());
+            stdInStream.write(htmlInput.getBytes("UTF-8"));
             stdInStream.close();
         }
         InputStream stdOutStream = process.getInputStream();

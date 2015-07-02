@@ -12,6 +12,19 @@
 			<version>1.12.6</version>
 		</dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>1.8.9</version>
+        </dependency>
+
+    </dependencies>
 
 </project>
