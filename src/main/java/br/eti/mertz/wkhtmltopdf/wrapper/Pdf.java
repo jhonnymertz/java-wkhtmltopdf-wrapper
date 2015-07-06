@@ -1,7 +1,6 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,11 +11,15 @@ import lombok.Data;
 @Data
 public class Pdf implements PdfService {
 
-	private String wkhtmlpdf;
+    static final String STDOUT = "-";
+
+	private String command;
 	private List<Param> params;
+	private String htmlInput = null;
+    private boolean htmlFromString = false;
 
 	public Pdf(String wkhtmltopdf, List<Param> params) {
-		this.wkhtmlpdf = wkhtmltopdf;
+		this.command = wkhtmltopdf;
 		this.params = params;
 	}
 
@@ -32,11 +35,9 @@ public class Pdf implements PdfService {
 		this("wkhtmltopdf", new ArrayList<Param>());
 	}
 
-	/**
-	 * TODO Add a HTML file, a HTML string or a page from a URL
-	 */
-	public void addPage(String page) {
-		// TODO Auto-generated method stub
+	public void addHtmlInput(String input) {
+        this.htmlFromString = true;
+        this.htmlInput = input;
 	}
 
 	/**
@@ -64,27 +65,72 @@ public class Pdf implements PdfService {
 	}
 
 	/**
-	 * TODO save file and returns
-	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
 	public File saveAs(String path) throws IOException, InterruptedException {
-		Runtime rt = Runtime.getRuntime();
-		Process proc = rt.exec(this.toString() + path);
-
-		proc.waitFor();
-
-		return new File(path);
+        File file = new File(path);
+        getPDF(path);
+        return file;
 	}
 
-	public String toString() {
+    public File saveAs(String path, byte[] document) throws IOException {
+        File file = new File(path);
+
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
+        bufferedOutputStream.write(document);
+        bufferedOutputStream.flush();
+        bufferedOutputStream.close();
+
+        return file;
+    }
+
+    public byte[] getPDF(String path) throws IOException, InterruptedException {
+        Runtime runtime = Runtime.getRuntime();
+        if(htmlFromString && !this.params.contains(new Param("-"))) {
+            this.addParam(new Param("-"));
+        }
+        String command = this.commandWithParameters() + Symbol.separator + path;
+        Process process = runtime.exec(command);
+        if(htmlFromString) {
+            OutputStream stdInStream = process.getOutputStream();
+            stdInStream.write(htmlInput.getBytes("UTF-8"));
+            stdInStream.close();
+        }
+        InputStream stdOutStream = process.getInputStream();
+        InputStream stdErrStream = process.getErrorStream();
+        process.waitFor();
+
+        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+
+        while(stdOutStream.available()>0) {
+            stdOut.write((char) stdOutStream.read());
+        }
+        stdOutStream.close();
+        while(stdErrStream.available()>0) {
+            stdErr.write((char) stdErrStream.read());
+        }
+        stdErrStream.close();
+
+        if(process.exitValue() != 0) {
+            throw new RuntimeException("Process (" + command + ") exited with status code " + process.exitValue() + ":\n"+new String(stdErr.toByteArray()));
+        }
+
+        return stdOut.toByteArray();
+    }
+
+    public byte[] getPDF() throws IOException, InterruptedException {
+        return getPDF(STDOUT);
+    }
+
+	public String commandWithParameters() {
 		StringBuilder sb = new StringBuilder();
 		for (Param param : params) {
 			sb.append(param);
 		}
 
-		return new StringBuilder(wkhtmlpdf).append(sb.toString()).toString();
+		return command + sb.toString();
 	}
 
 	public void addParam(GlobalOption option) {
