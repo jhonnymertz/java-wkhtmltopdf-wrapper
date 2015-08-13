@@ -5,36 +5,41 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
-import br.eti.mertz.wkhtmltopdf.wrapper.params.Symbol;
 
 public class Pdf implements PdfService {
 
     private static final String STDOUT = "-";
 
-	private String command;
-	private List<Param> params;
+    private WrapperConfig wrapperConfig;
+
+    private String path;
+    private List<Param> params;
+
 	private String htmlInput = null;
     private boolean htmlFromString = false;
 
-	public Pdf(String wkhtmltopdf, List<Param> params) {
-		this.command = wkhtmltopdf;
-		this.params = params;
+	public Pdf(WrapperConfig wrapperConfig, String path, List<Param> params) {
+        this.wrapperConfig = wrapperConfig;
+        this.params = params;
+        this.path = path;
 	}
 
-	public Pdf(List<Param> params) {
-		this("wkhtmltopdf", params);
+	public Pdf(String path, List<Param> params) {
+		this(new WrapperConfigBuilder().build(), path, params);
 	}
 
-	public Pdf(Param... params) {
-		this("wkhtmltopdf", Arrays.asList(params));
+	public Pdf(String path, Param... params) {
+		this(new WrapperConfigBuilder().build(), path, Arrays.asList(params));
 	}
 
-	public Pdf() {
-		this("wkhtmltopdf", new ArrayList<Param>());
+	public Pdf(String path) {
+		this(new WrapperConfigBuilder().build(), path, new ArrayList<Param>());
 	}
 
-	public void addHtmlInput(String input) {
+    public void addHtmlInput(String input) {
         this.htmlFromString = true;
         this.htmlInput = input;
 	}
@@ -69,18 +74,13 @@ public class Pdf implements PdfService {
     }
 
     public byte[] getPDF() throws IOException, InterruptedException {
-        return getPDF(STDOUT);
-    }
-
-    private byte[] getPDF(String path) throws IOException, InterruptedException {
 
         if(htmlFromString && !this.params.contains(new Param("-"))) {
             this.addParam(new Param("-"));
         }
-        String command = this.commandParameters() + Symbol.separator + path;
 
         Runtime runtime = Runtime.getRuntime();
-        Process process = runtime.exec(command);
+        Process process = runtime.exec(getCommandAsArray());
 
         if(htmlFromString) {
             OutputStream stdInStream = process.getOutputStream();
@@ -105,19 +105,38 @@ public class Pdf implements PdfService {
         stdErrStream.close();
 
         if(process.exitValue() != 0) {
-            throw new RuntimeException("Process (" + command + ") exited with status code " + process.exitValue() + ":\n"+new String(stdErr.toByteArray()));
+            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n"+new String(stdErr.toByteArray()));
         }
 
         return stdOut.toByteArray();
     }
 
-	public String commandParameters() {
-		StringBuilder sb = new StringBuilder();
-		for (Param param : params) {
-			sb.append(param);
-		}
+    private String[] getCommandAsArray(){
+        List<String> commandLine = new ArrayList<String>();
+        commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
+        for(Param p : params) {
+            commandLine.add(p.getKey());
 
-		return command + sb.toString();
-	}
+            String value = p.getValue();
+
+            if(value != null) {
+                commandLine.add(p.getValue());
+            }
+        }
+        commandLine.add(path);
+        return commandLine.toArray(new String[commandLine.size()]);
+    }
+
+    public String getCommand(){
+        return Arrays.toString(getCommandAsArray());
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
 }
