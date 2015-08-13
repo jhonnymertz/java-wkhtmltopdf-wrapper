@@ -1,4 +1,4 @@
-package br.eti.mertz.wkhtmltopdf.wrapper;
+package br.eti.mertz.wkhtmltopdf.wrapper.params;
 
 public enum Symbol {
 

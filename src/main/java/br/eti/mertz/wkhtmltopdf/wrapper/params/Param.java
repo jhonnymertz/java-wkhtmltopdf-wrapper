@@ -1,12 +1,7 @@
-package br.eti.mertz.wkhtmltopdf.wrapper;
+package br.eti.mertz.wkhtmltopdf.wrapper.params;
 
-import lombok.Data;
-import lombok.NonNull;
-
-@Data
 public class Param {
 
-	@NonNull
 	private String key;
 
 	private String value;

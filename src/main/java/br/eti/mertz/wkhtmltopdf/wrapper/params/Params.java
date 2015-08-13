@@ -1,14 +1,11 @@
-package br.eti.mertz.wkhtmltopdf.wrapper;
+package br.eti.mertz.wkhtmltopdf.wrapper.params;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-
-@Data
 public class Params {
 
-	List<Param> params;
+	private List<Param> params;
 
 	public Params() {
 		this.params = new ArrayList<Param>();
