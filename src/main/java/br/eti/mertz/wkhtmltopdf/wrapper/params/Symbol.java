@@ -2,17 +2,17 @@ package br.eti.mertz.wkhtmltopdf.wrapper.params;
 
 public enum Symbol {
 
-	separator(" "), param("");
+    separator(" "), param("");
 
-	private String symbol;
+    private String symbol;
 
-	Symbol(String symbol) {
-		this.symbol = symbol;
-	}
+    Symbol(String symbol) {
+        this.symbol = symbol;
+    }
 
-	@Override
-	public String toString() {
-		return symbol;
-	}
+    @Override
+    public String toString() {
+        return symbol;
+    }
 
 }

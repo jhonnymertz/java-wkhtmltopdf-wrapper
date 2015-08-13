@@ -11,16 +11,20 @@ Usage
 ------------
 ```
 Pdf pdf = new Pdf();
-pdf.addHtmlInput("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
-```
 
-The `wkhtmltopdf` shell command accepts different types of options such as global, page, headers and footers, and toc. Please see `wkhtmltopdf -H` for a full explanation. All options are passed as array, for example:
+pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>", PageType.htmlAsString);
+pdf.addPage("http://www.google.com", PageType.url);
 
-Options can be defined through an abstract param object:
+// Add a Table of contents
+pdf.addToc();
 
-```
-Pdf pdf = new Pdf();
-pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///header.html"));
+// The `wkhtmltopdf` shell command accepts different types of options such as global, page, headers and footers, and toc. Please see `wkhtmltopdf -H` for a full explanation.
+// All options are passed as array, for example:
+pdf.addParam(new Param("--no-footer-line"), new Param("--html-header", "file:///header.html"));
+pdf.addParam(new Param("--enable-javascript"));
+
+// Save the PDF
+pdf.saveAs("output.pdf");
 ```
 
 Wrapper options

@@ -1,57 +1,61 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
+import br.eti.mertz.wkhtmltopdf.wrapper.page.Page;
+import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Pdf implements PdfService {
 
-    private static final String STDOUT = "-";
+    private static final String STDINOUT = "-";
 
     private WrapperConfig wrapperConfig;
 
     private List<Param> params;
 
-	private String htmlInput = null;
-    private boolean htmlFromString = false;
+    private List<Page> pages;
 
-	public Pdf(WrapperConfig wrapperConfig) {
+    private boolean hasToc = false;
+
+    public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
         this.params = new ArrayList<Param>();
-	}
+        this.pages = new ArrayList<Page>();
+    }
 
-	public Pdf() {
-		this(new WrapperConfigBuilder().build());
-	}
+    public Pdf() {
+        this(new WrapperConfigBuilder().build());
+    }
 
-    public void addHtmlInput(String input) {
-        this.htmlFromString = true;
-        this.htmlInput = input;
-	}
+    public void addPage(String source, PageType type) {
+        this.pages.add(new Page(source, type));
+    }
 
-	public void addParam(Param param) {
-		params.add(param);
-	}
+    public void addToc() {
+        this.hasToc = true;
+    }
 
-	public void addParam(Param... params) {
-		for (Param param : params) {
-			addParam(param);
-		}
-	}
+    public void addParam(Param param) {
+        params.add(param);
+    }
 
-	/**
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	public void saveAs(String path) throws IOException, InterruptedException {
+    public void addParam(Param... params) {
+        for (Param param : params) {
+            addParam(param);
+        }
+    }
+
+    public void saveAs(String path) throws IOException, InterruptedException {
         saveAs(path, getPDF());
-	}
+    }
 
     private File saveAs(String path, byte[] document) throws IOException {
         File file = new File(path);
@@ -66,17 +70,15 @@ public class Pdf implements PdfService {
 
     public byte[] getPDF() throws IOException, InterruptedException {
 
-        if(htmlFromString && !this.params.contains(new Param("-"))) {
-            this.addParam(new Param("-"));
-        }
-
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(getCommandAsArray());
 
-        if(htmlFromString) {
-            OutputStream stdInStream = process.getOutputStream();
-            stdInStream.write(htmlInput.getBytes("UTF-8"));
-            stdInStream.close();
+        for(Page page: pages){
+            if (page.getType().equals(PageType.htmlAsString)) {
+                OutputStream stdInStream = process.getOutputStream();
+                stdInStream.write(page.getSource().getBytes("UTF-8"));
+                stdInStream.close();
+            }
         }
 
         InputStream stdOutStream = process.getInputStream();
@@ -86,39 +88,52 @@ public class Pdf implements PdfService {
         ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
         ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
 
-        while(stdOutStream.available()>0) {
+        while (stdOutStream.available() > 0) {
             stdOut.write((char) stdOutStream.read());
         }
         stdOutStream.close();
-        while(stdErrStream.available()>0) {
+        while (stdErrStream.available() > 0) {
             stdErr.write((char) stdErrStream.read());
         }
         stdErrStream.close();
 
-        if(process.exitValue() != 0) {
-            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n"+new String(stdErr.toByteArray()));
+        if (process.exitValue() != 0) {
+            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(stdErr.toByteArray()));
         }
 
         return stdOut.toByteArray();
     }
 
-    private String[] getCommandAsArray(){
+    private String[] getCommandAsArray() {
         List<String> commandLine = new ArrayList<String>();
         commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
-        for(Param p : params) {
+
+        if(hasToc)
+            commandLine.add("toc");
+
+        for (Param p : params) {
             commandLine.add(p.getKey());
 
             String value = p.getValue();
 
-            if(value != null) {
+            if (value != null) {
                 commandLine.add(p.getValue());
             }
         }
-        commandLine.add(STDOUT);
+
+        for(Page page: pages){
+            if (page.getType().equals(PageType.htmlAsString)) {
+                commandLine.add(STDINOUT);
+            }
+            else{
+                commandLine.add(page.getSource());
+            }
+        }
+        commandLine.add(STDINOUT);
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
-    public String getCommand(){
+    public String getCommand() {
         return StringUtils.join(getCommandAsArray(), " ");
     }
 
