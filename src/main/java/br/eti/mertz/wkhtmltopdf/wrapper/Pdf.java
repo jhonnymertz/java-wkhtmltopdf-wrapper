@@ -9,9 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Pdf implements PdfService {
 
@@ -73,7 +71,7 @@ public class Pdf implements PdfService {
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(getCommandAsArray());
 
-        for(Page page: pages){
+        for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
                 OutputStream stdInStream = process.getOutputStream();
                 stdInStream.write(page.getSource().getBytes("UTF-8"));
@@ -108,7 +106,7 @@ public class Pdf implements PdfService {
         List<String> commandLine = new ArrayList<String>();
         commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
 
-        if(hasToc)
+        if (hasToc)
             commandLine.add("toc");
 
         for (Param p : params) {
@@ -121,11 +119,10 @@ public class Pdf implements PdfService {
             }
         }
 
-        for(Page page: pages){
+        for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
                 commandLine.add(STDINOUT);
-            }
-            else{
+            } else {
                 commandLine.add(page.getSource());
             }
         }

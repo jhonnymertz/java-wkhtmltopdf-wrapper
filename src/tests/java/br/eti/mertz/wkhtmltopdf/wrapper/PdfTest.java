@@ -1,7 +1,5 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
-import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
-import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -35,7 +33,7 @@ public class PdfTest {
         pdf.saveAs("output.pdf");
 
         // WHEN
-        byte[] pdfBytes =  pdf.getPDF();
+        byte[] pdfBytes = pdf.getPDF();
 
         PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
 
@@ -45,8 +43,6 @@ public class PdfTest {
         String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
 
         Assert.assertThat("document should contain the creditorName", pdfText, containsString("Müller"));
-
-
 
 
     }
