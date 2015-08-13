@@ -8,6 +8,7 @@ import java.util.List;
 import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
+import org.apache.commons.lang3.StringUtils;
 
 public class Pdf implements PdfService {
 
@@ -15,28 +16,18 @@ public class Pdf implements PdfService {
 
     private WrapperConfig wrapperConfig;
 
-    private String path;
     private List<Param> params;
 
 	private String htmlInput = null;
     private boolean htmlFromString = false;
 
-	public Pdf(WrapperConfig wrapperConfig, String path, List<Param> params) {
+	public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
-        this.params = params;
-        this.path = path;
+        this.params = new ArrayList<Param>();
 	}
 
-	public Pdf(String path, List<Param> params) {
-		this(new WrapperConfigBuilder().build(), path, params);
-	}
-
-	public Pdf(String path, Param... params) {
-		this(new WrapperConfigBuilder().build(), path, Arrays.asList(params));
-	}
-
-	public Pdf(String path) {
-		this(new WrapperConfigBuilder().build(), path, new ArrayList<Param>());
+	public Pdf() {
+		this(new WrapperConfigBuilder().build());
 	}
 
     public void addHtmlInput(String input) {
@@ -123,20 +114,12 @@ public class Pdf implements PdfService {
                 commandLine.add(p.getValue());
             }
         }
-        commandLine.add(path);
+        commandLine.add(STDOUT);
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
     public String getCommand(){
-        return Arrays.toString(getCommandAsArray());
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
+        return StringUtils.join(getCommandAsArray(), " ");
     }
 
 }

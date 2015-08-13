@@ -1,5 +1,7 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
+import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -17,7 +19,7 @@ public class PdfTest {
     public void testCommand() throws Exception {
         Pdf pdf = new Pdf();
         pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
-        Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.commandParameters(), containsString("wkhtmltopdf --enable-javascript --html-header file:///example.html"));
+        Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("wkhtmltopdf --enable-javascript --html-header file:///example.html"));
     }
 
     @Test
