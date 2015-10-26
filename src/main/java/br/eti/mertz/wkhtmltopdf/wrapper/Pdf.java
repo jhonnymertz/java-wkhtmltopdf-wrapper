@@ -5,6 +5,7 @@ import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.Page;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -67,7 +68,6 @@ public class Pdf implements PdfService {
     }
 
     public byte[] getPDF() throws IOException, InterruptedException {
-
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(getCommandAsArray());
 
@@ -79,27 +79,29 @@ public class Pdf implements PdfService {
             }
         }
 
-        InputStream stdOutStream = process.getInputStream();
-        InputStream stdErrStream = process.getErrorStream();
+        StreamEater outputStreamEater = new StreamEater(process.getInputStream());
+        outputStreamEater.start();
+
+        StreamEater errorStreamEater = new StreamEater(process.getErrorStream());
+        errorStreamEater.start();
+
+        outputStreamEater.join();
+        errorStreamEater.join();
         process.waitFor();
 
-        ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-
-        while (stdOutStream.available() > 0) {
-            stdOut.write((char) stdOutStream.read());
-        }
-        stdOutStream.close();
-        while (stdErrStream.available() > 0) {
-            stdErr.write((char) stdErrStream.read());
-        }
-        stdErrStream.close();
-
         if (process.exitValue() != 0) {
-            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(stdErr.toByteArray()));
+            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorStreamEater.getBytes()));
         }
 
-        return stdOut.toByteArray();
+        if (outputStreamEater.getError() != null) {
+        	throw outputStreamEater.getError();
+        }
+
+        if (errorStreamEater.getError() != null) {
+        	throw errorStreamEater.getError();
+        }
+
+        return outputStreamEater.getBytes();
     }
 
     private String[] getCommandAsArray() {
@@ -134,4 +136,41 @@ public class Pdf implements PdfService {
         return StringUtils.join(getCommandAsArray(), " ");
     }
 
+    private class StreamEater extends Thread {
+
+    	private InputStream stream;
+		private ByteArrayOutputStream bytes;
+
+		private IOException error;
+
+		public StreamEater(InputStream stream) {
+			this.stream = stream;
+
+	        bytes = new ByteArrayOutputStream();
+		}
+
+		public void run() {
+			try {
+				int bytesRead = stream.read();
+				while (bytesRead >= 0) {
+					bytes.write(bytesRead);
+					bytesRead = stream.read();
+				}
+
+				stream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+
+				error = e;
+			}
+		}
+
+		public IOException getError() {
+			return error;
+		}
+
+		public byte[] getBytes() {
+			return bytes.toByteArray();
+		}
+    }
 }
