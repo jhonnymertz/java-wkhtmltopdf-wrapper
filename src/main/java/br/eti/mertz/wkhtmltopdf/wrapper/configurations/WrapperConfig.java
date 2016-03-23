@@ -22,6 +22,25 @@ public class WrapperConfig {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;
     }
 
+    private boolean xvfbEnabled = false;
+    private String xvfbrunCommand = "xvfb-run";
+
+    public boolean isXvfbEnabled() {
+        return xvfbEnabled;
+    }
+
+    public void setXvfbEnabled(boolean xvfbEnabled) {
+        this.xvfbEnabled = xvfbEnabled;
+    }
+
+    public String getXvfbrunCommand() {
+        return xvfbrunCommand;
+    }
+
+    public void setXvfbrunCommand(String xvfbrunCommand) {
+        this.xvfbrunCommand = xvfbrunCommand;
+    }
+
     /**
      * Attempts to find the `wkhtmltopdf` executable in the system path.
      *
@@ -49,7 +68,7 @@ public class WrapperConfig {
             StringBuilder sb = new StringBuilder();
             String line = "";
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line);
             }
 
             if (sb.toString().isEmpty())
