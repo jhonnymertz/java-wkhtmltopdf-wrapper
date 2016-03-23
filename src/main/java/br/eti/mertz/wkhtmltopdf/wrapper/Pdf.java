@@ -1,7 +1,6 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
 import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
-import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.Page;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
@@ -31,7 +30,7 @@ public class Pdf implements PdfService {
     }
 
     public Pdf() {
-        this(new WrapperConfigBuilder().build());
+        this(new WrapperConfig());
     }
 
     public void addPage(String source, PageType type) {

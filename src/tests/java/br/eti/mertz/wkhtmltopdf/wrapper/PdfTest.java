@@ -1,7 +1,6 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
 import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
-import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -27,7 +26,7 @@ public class PdfTest {
 
     @Test
     public void findExecutable() throws Exception {
-        WrapperConfig wc = new WrapperConfigBuilder().build();
+        WrapperConfig wc = new WrapperConfig();
         Assert.assertThat("executable should be /usr/bin/wkhtmltopdf", wc.findExecutable(), containsString("/usr/bin/wkhtmltopdf"));
     }
 

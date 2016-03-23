@@ -8,8 +8,10 @@ public class WrapperConfig {
 
     public WrapperConfig(String wkhtmltopdfCommand) {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;
-        if (wkhtmltopdfCommand == null)
-            findExecutable();
+    }
+
+    public WrapperConfig(){
+        this.wkhtmltopdfCommand = findExecutable();
     }
 
     public String getWkhtmltopdfCommand() {
