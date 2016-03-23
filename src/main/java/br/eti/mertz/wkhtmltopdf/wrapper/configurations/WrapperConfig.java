@@ -1,10 +1,15 @@
 package br.eti.mertz.wkhtmltopdf.wrapper.configurations;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class WrapperConfig {
-    private String wkhtmltopdfCommand = "wkhtmltopdf";
 
     public WrapperConfig(String wkhtmltopdfCommand) {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;
+        if (wkhtmltopdfCommand == null)
+            findExecutable();
     }
 
     public String getWkhtmltopdfCommand() {
@@ -13,5 +18,50 @@ public class WrapperConfig {
 
     public void setWkhtmltopdfCommand(String wkhtmltopdfCommand) {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;
+    }
+
+    /**
+     * Attempts to find the `wkhtmltopdf` executable in the system path.
+     *
+     * @return
+     */
+    private String wkhtmltopdfCommand = "wkhtmltopdf";
+
+    public String findExecutable() {
+
+        try {
+
+            String osname = System.getProperty("os.name").toLowerCase();
+
+            String cmd;
+            if (osname.contains("windows"))
+                cmd = "where wkhtmltopdf";
+            else cmd = "which wkhtmltopdf";
+
+            Process p = Runtime.getRuntime().exec(cmd);
+            p.waitFor();
+
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            StringBuilder sb = new StringBuilder();
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+
+            if (sb.toString().isEmpty())
+                throw new RuntimeException();
+
+            setWkhtmltopdfCommand(sb.toString());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        return getWkhtmltopdfCommand();
     }
 }

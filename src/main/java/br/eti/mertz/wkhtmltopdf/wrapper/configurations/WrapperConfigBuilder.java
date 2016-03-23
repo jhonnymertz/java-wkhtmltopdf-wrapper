@@ -1,7 +1,7 @@
 package br.eti.mertz.wkhtmltopdf.wrapper.configurations;
 
 public class WrapperConfigBuilder {
-    private String wkhtmltopdfCommand = "wkhtmltopdf";
+    private String wkhtmltopdfCommand;
 
     public WrapperConfigBuilder setWkhtmltopdfCommand(String wkhtmltopdfCommand) {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;

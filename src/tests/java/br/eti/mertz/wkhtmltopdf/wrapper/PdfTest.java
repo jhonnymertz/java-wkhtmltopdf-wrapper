@@ -1,5 +1,7 @@
 package br.eti.mertz.wkhtmltopdf.wrapper;
 
+import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfigBuilder;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -21,6 +23,12 @@ public class PdfTest {
         pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
         pdf.addPage("http://www.google.com", PageType.url);
         Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
+    }
+
+    @Test
+    public void findExecutable() throws Exception {
+        WrapperConfig wc = new WrapperConfigBuilder().build();
+        Assert.assertThat("executable should be /usr/bin/wkhtmltopdf", wc.findExecutable(), containsString("/usr/bin/wkhtmltopdf"));
     }
 
     @Test
