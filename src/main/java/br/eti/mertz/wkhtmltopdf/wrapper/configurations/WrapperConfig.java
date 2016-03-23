@@ -6,11 +6,15 @@ import java.io.InputStreamReader;
 
 public class WrapperConfig {
 
+    private XvfbConfig xvfbConfig;
+
+    private String wkhtmltopdfCommand = "wkhtmltopdf";
+
     public WrapperConfig(String wkhtmltopdfCommand) {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;
     }
 
-    public WrapperConfig(){
+    public WrapperConfig() {
         this.wkhtmltopdfCommand = findExecutable();
     }
 
@@ -22,32 +26,11 @@ public class WrapperConfig {
         this.wkhtmltopdfCommand = wkhtmltopdfCommand;
     }
 
-    private boolean xvfbEnabled = false;
-    private String xvfbrunCommand = "xvfb-run";
-
-    public boolean isXvfbEnabled() {
-        return xvfbEnabled;
-    }
-
-    public void setXvfbEnabled(boolean xvfbEnabled) {
-        this.xvfbEnabled = xvfbEnabled;
-    }
-
-    public String getXvfbrunCommand() {
-        return xvfbrunCommand;
-    }
-
-    public void setXvfbrunCommand(String xvfbrunCommand) {
-        this.xvfbrunCommand = xvfbrunCommand;
-    }
-
     /**
      * Attempts to find the `wkhtmltopdf` executable in the system path.
      *
      * @return
      */
-    private String wkhtmltopdfCommand = "wkhtmltopdf";
-
     public String findExecutable() {
 
         try {
@@ -84,5 +67,17 @@ public class WrapperConfig {
         }
 
         return getWkhtmltopdfCommand();
+    }
+
+    public boolean isXvfbEnabled() {
+        return xvfbConfig != null;
+    }
+
+    public XvfbConfig getXvfbConfig() {
+        return xvfbConfig;
+    }
+
+    public void setXvfbConfig(XvfbConfig xvfbConfig) {
+        this.xvfbConfig = xvfbConfig;
     }
 }

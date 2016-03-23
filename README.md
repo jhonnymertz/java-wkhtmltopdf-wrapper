@@ -27,6 +27,21 @@ pdf.addParam(new Param("--enable-javascript"));
 pdf.saveAs("output.pdf");
 ```
 
+Xvfb Support
+------------
+```
+XvfbConfig xc = new XvfbConfig();
+xc.addParams(new Param("--auto-servernum"), new Param("--server-num=1"));
+
+WrapperConfig wc = new WrapperConfig();
+wc.setXvfbConfig(xc);
+
+Pdf pdf = new Pdf(wc);
+pdf.addPage("http://www.google.com", PageType.url);
+
+pdf.saveAs("output.pdf");
+```
+
 Wrapper options
 -------------------
 TODO

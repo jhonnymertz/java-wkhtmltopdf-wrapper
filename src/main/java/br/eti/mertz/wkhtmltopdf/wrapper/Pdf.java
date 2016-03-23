@@ -4,7 +4,7 @@ import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.Page;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
-
+import br.eti.mertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -17,7 +17,7 @@ public class Pdf implements PdfService {
 
     private WrapperConfig wrapperConfig;
 
-    private List<Param> params;
+    private Params params;
 
     private List<Page> pages;
 
@@ -25,7 +25,7 @@ public class Pdf implements PdfService {
 
     public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
-        this.params = new ArrayList<Param>();
+        this.params = new Params();
         this.pages = new ArrayList<Page>();
     }
 
@@ -93,11 +93,11 @@ public class Pdf implements PdfService {
         }
 
         if (outputStreamEater.getError() != null) {
-        	throw outputStreamEater.getError();
+            throw outputStreamEater.getError();
         }
 
         if (errorStreamEater.getError() != null) {
-        	throw errorStreamEater.getError();
+            throw errorStreamEater.getError();
         }
 
         return outputStreamEater.getBytes();
@@ -105,20 +105,16 @@ public class Pdf implements PdfService {
 
     private String[] getCommandAsArray() {
         List<String> commandLine = new ArrayList<String>();
+
+        if (wrapperConfig.isXvfbEnabled())
+            commandLine.addAll(wrapperConfig.getXvfbConfig().getCommandLine());
+
         commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
 
         if (hasToc)
             commandLine.add("toc");
 
-        for (Param p : params) {
-            commandLine.add(p.getKey());
-
-            String value = p.getValue();
-
-            if (value != null) {
-                commandLine.add(p.getValue());
-            }
-        }
+        commandLine.addAll(params.getParamsAsStringList());
 
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
@@ -137,39 +133,39 @@ public class Pdf implements PdfService {
 
     private class StreamEater extends Thread {
 
-    	private InputStream stream;
-		private ByteArrayOutputStream bytes;
+        private InputStream stream;
+        private ByteArrayOutputStream bytes;
 
-		private IOException error;
+        private IOException error;
 
-		public StreamEater(InputStream stream) {
-			this.stream = stream;
+        public StreamEater(InputStream stream) {
+            this.stream = stream;
 
-	        bytes = new ByteArrayOutputStream();
-		}
+            bytes = new ByteArrayOutputStream();
+        }
 
-		public void run() {
-			try {
-				int bytesRead = stream.read();
-				while (bytesRead >= 0) {
-					bytes.write(bytesRead);
-					bytesRead = stream.read();
-				}
+        public void run() {
+            try {
+                int bytesRead = stream.read();
+                while (bytesRead >= 0) {
+                    bytes.write(bytesRead);
+                    bytesRead = stream.read();
+                }
 
-				stream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
 
-				error = e;
-			}
-		}
+                error = e;
+            }
+        }
 
-		public IOException getError() {
-			return error;
-		}
+        public IOException getError() {
+            return error;
+        }
 
-		public byte[] getBytes() {
-			return bytes.toByteArray();
-		}
+        public byte[] getBytes() {
+            return bytes.toByteArray();
+        }
     }
 }

@@ -21,6 +21,22 @@ public class Params {
         }
     }
 
+    public List<String> getParamsAsStringList() {
+        List<String> commandLine = new ArrayList<String>();
+
+        for (Param p : params) {
+            commandLine.add(p.getKey());
+
+            String value = p.getValue();
+
+            if (value != null) {
+                commandLine.add(p.getValue());
+            }
+        }
+
+        return commandLine;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Param param : params) {
