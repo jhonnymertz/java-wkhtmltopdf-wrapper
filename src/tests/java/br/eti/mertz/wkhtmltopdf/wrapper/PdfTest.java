@@ -37,8 +37,6 @@ public class PdfTest {
         Pdf pdf = new Pdf();
         pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>", PageType.htmlAsString);
 
-        pdf.saveAs("output.pdf");
-
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
 
@@ -50,7 +48,26 @@ public class PdfTest {
         String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
 
         Assert.assertThat("document should contain the creditorName", pdfText, containsString("Müller"));
+    }
 
+    @Test
+    public void testMultiplePages() throws Exception {
+        Pdf pdf = new Pdf();
+        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>", PageType.htmlAsString);
+        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Page 2</h1></html>", PageType.htmlAsString);
+        pdf.addPage("http://www.google.com", PageType.url);
+        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Page 4</h1></html>", PageType.htmlAsString);
 
+        // WHEN
+        byte[] pdfBytes = pdf.getPDF();
+
+        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
+
+        // that is a valid PDF (otherwise an IOException occurs)
+        parser.parse();
+        PDFTextStripper pdfTextStripper = new PDFTextStripper();
+        String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+
+        Assert.assertThat("document should contain the fourth page name", pdfText, containsString("Page 4"));
     }
 }

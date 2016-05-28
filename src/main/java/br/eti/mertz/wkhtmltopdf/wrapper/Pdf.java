@@ -5,11 +5,13 @@ import br.eti.mertz.wkhtmltopdf.wrapper.page.Page;
 import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
 import br.eti.mertz.wkhtmltopdf.wrapper.params.Params;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Pdf implements PdfService {
 
@@ -70,14 +72,6 @@ public class Pdf implements PdfService {
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(getCommandAsArray());
 
-        for (Page page : pages) {
-            if (page.getType().equals(PageType.htmlAsString)) {
-                OutputStream stdInStream = process.getOutputStream();
-                stdInStream.write(page.getSource().getBytes("UTF-8"));
-                stdInStream.close();
-            }
-        }
-
         StreamEater outputStreamEater = new StreamEater(process.getInputStream());
         outputStreamEater.start();
 
@@ -103,7 +97,7 @@ public class Pdf implements PdfService {
         return outputStreamEater.getBytes();
     }
 
-    private String[] getCommandAsArray() {
+    private String[] getCommandAsArray() throws IOException {
         List<String> commandLine = new ArrayList<String>();
 
         if (wrapperConfig.isXvfbEnabled())
@@ -118,16 +112,20 @@ public class Pdf implements PdfService {
 
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
-                commandLine.add(STDINOUT);
-            } else {
-                commandLine.add(page.getSource());
+
+                File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html");
+                FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
+
+                page.setSource(temp.getAbsolutePath());
             }
+
+            commandLine.add(page.getSource());
         }
         commandLine.add(STDINOUT);
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
-    public String getCommand() {
+    public String getCommand() throws IOException {
         return StringUtils.join(getCommandAsArray(), " ");
     }
 
