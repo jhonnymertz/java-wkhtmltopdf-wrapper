@@ -7,6 +7,44 @@ Requirements
 ------------
 **[wkhtmltopdf](http://wkhtmltopdf.org/) must be installed and working on your system.**
 
+### Wrapper project dependency
+Make sure you have Java Wrapper dependency added to your project.
+
+If you are using Gradle/Maven, see example below:
+
+##### Gradle
+In your `build.gradle`:
+```groovy
+	allprojects {
+		repositories {
+			maven { url "https://jitpack.io" }
+		}
+	}
+	
+	dependencies {
+		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:0.0.3-SNAPSHOT'
+	}
+```
+
+##### Maven
+In your `pom.xml`:
+```xml
+	<dependencies>
+		<dependency>
+				<groupId>com.github.jhonnymertz</groupId>
+				<artifactId>java-wkhtmltopdf-wrapper</artifactId>
+				<version>0.0.3-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+				<id>jitpack.io</id>
+				<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+```
+
 Usage
 ------------
 ```
@@ -41,14 +79,6 @@ pdf.addPage("http://www.google.com", PageType.url);
 
 pdf.saveAs("output.pdf");
 ```
-
-Wrapper options
--------------------
-TODO
-
-Error handling
-------------
-TODO
 
 License
 ------------
