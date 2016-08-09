@@ -58,7 +58,7 @@ pdf.addToc();
 
 // The `wkhtmltopdf` shell command accepts different types of options such as global, page, headers and footers, and toc. Please see `wkhtmltopdf -H` for a full explanation.
 // All options are passed as array, for example:
-pdf.addParam(new Param("--no-footer-line"), new Param("--html-header", "file:///header.html"));
+pdf.addParam(new Param("--no-footer-line"), new Param("--header-html", "file:///header.html"));
 pdf.addParam(new Param("--enable-javascript"));
 
 // Save the PDF
