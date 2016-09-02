@@ -105,10 +105,10 @@ public class Pdf implements PdfService {
 
         commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
 
+        commandLine.addAll(params.getParamsAsStringList());
+        
         if (hasToc)
             commandLine.add("toc");
-
-        commandLine.addAll(params.getParamsAsStringList());
 
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
