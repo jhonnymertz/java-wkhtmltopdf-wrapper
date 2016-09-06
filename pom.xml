@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>br.eti.mertz</groupId>
-	<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.github.jhonnymertz</groupId>
+    <artifactId>java-wkhtmltopdf-wrapper</artifactId>
+    <version>1.0.0-RELEASE</version>
 
-	<dependencies>
+    <dependencies>
 
         <dependency>
             <groupId>junit</groupId>
@@ -32,8 +32,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
         </dependency>
-
-
 
     </dependencies>
 

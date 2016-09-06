@@ -1,7 +1,7 @@
-package br.eti.mertz.wkhtmltopdf.wrapper;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
-import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
-import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 
 import java.io.IOException;
 

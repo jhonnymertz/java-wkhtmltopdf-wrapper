@@ -1,8 +1,8 @@
-package br.eti.mertz.wkhtmltopdf.wrapper;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
-import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
-import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
-import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;

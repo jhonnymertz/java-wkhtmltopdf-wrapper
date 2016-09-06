@@ -22,7 +22,7 @@ In your `build.gradle`:
 	}
 	
 	dependencies {
-		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:0.0.3-SNAPSHOT'
+		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.0.0-RELEASE'
 	}
 ```
 
@@ -33,7 +33,7 @@ In your `pom.xml`:
 		<dependency>
 				<groupId>com.github.jhonnymertz</groupId>
 				<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-				<version>0.0.3-SNAPSHOT</version>
+				<version>1.0.0-RELEASE</version>
 		</dependency>
 	</dependencies>
 

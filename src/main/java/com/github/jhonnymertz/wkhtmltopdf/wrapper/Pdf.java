@@ -1,10 +1,10 @@
-package br.eti.mertz.wkhtmltopdf.wrapper;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
-import br.eti.mertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
-import br.eti.mertz.wkhtmltopdf.wrapper.page.Page;
-import br.eti.mertz.wkhtmltopdf.wrapper.page.PageType;
-import br.eti.mertz.wkhtmltopdf.wrapper.params.Param;
-import br.eti.mertz.wkhtmltopdf.wrapper.params.Params;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.Page;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -106,7 +106,7 @@ public class Pdf implements PdfService {
         commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
 
         commandLine.addAll(params.getParamsAsStringList());
-        
+
         if (hasToc)
             commandLine.add("toc");
 

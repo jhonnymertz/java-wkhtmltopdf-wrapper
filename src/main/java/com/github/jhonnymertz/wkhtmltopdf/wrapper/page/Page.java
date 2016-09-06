@@ -1,4 +1,4 @@
-package br.eti.mertz.wkhtmltopdf.wrapper.page;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper.page;
 
 public class Page {
 

@@ -1,4 +1,4 @@
-package br.eti.mertz.wkhtmltopdf.wrapper.params;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper.params;
 
 import java.util.ArrayList;
 import java.util.List;
