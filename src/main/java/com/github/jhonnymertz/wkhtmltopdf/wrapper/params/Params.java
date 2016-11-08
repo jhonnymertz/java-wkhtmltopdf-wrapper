@@ -27,16 +27,17 @@ public class Params {
         for (Param p : params) {
             commandLine.add(p.getKey());
 
-            String value = p.getValue();
-
-            if (value != null) {
-                commandLine.add(p.getValue());
+            for (String value : p.getValues()) {
+                if (value != null) {
+                    commandLine.add(value);
+                }
             }
         }
 
         return commandLine;
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Param param : params) {

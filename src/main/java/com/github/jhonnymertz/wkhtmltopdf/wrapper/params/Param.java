@@ -1,18 +1,25 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.params;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Param {
 
     private String key;
 
-    private String value;
+    // Some commands accept more than one value such as cookies and headers
+    private List<String> values;
 
-    public Param(String key, String value) {
+    public Param(String key, String... valueArray) {
         this.key = key;
-        this.value = value;
+        this.values = new ArrayList<String>();
+        for (String value : valueArray) {
+            values.add(value);
+        }
     }
 
     public Param(String key) {
-        this(key, null);
+        this(key, new String[0]);
     }
 
     public String getKey() {
@@ -23,18 +30,38 @@ public class Param {
         this.key = key;
     }
 
+    // This is kept for backwards compatibility it will
+    // only return the first arg if it exists
+    @Deprecated
     public String getValue() {
-        return value;
+        if (values.size() > 0) {
+            return values.get(0);
+        }
+        return null;
     }
 
+    public List<String> getValues() {
+        return values;
+    }
+
+    @Deprecated
     public void setValue(String value) {
-        this.value = value;
+        if (values.size() == 0) {
+            values.add(value);
+        } else {
+            values.set(0, value);
+        }
     }
 
+    public void setValues(List<String> values) {
+        this.values = values;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder().append(Symbol.separator)
                 .append(Symbol.param).append(key);
-        if (value != null)
+        for (String value : values)
             sb.append(Symbol.separator).append(value);
         return sb.toString();
     }
