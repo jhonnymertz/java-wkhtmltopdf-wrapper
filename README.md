@@ -22,7 +22,7 @@ In your `build.gradle`:
 	}
 	
 	dependencies {
-		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.0.0-RELEASE'
+		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.0.1-RELEASE'
 	}
 ```
 
