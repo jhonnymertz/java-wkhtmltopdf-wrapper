@@ -33,7 +33,7 @@ In your `pom.xml`:
 		<dependency>
 				<groupId>com.github.jhonnymertz</groupId>
 				<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-				<version>1.0.0-RELEASE</version>
+				<version>1.0.1-RELEASE</version>
 		</dependency>
 	</dependencies>
 
