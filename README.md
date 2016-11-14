@@ -80,6 +80,11 @@ pdf.addPage("http://www.google.com", PageType.url);
 pdf.saveAs("output.pdf");
 ```
 
+Snapshots
+---------
+
+Snapshots built from the `master` branch are available through jitpack using version `1.1.0-SNAPSHOT`
+
 License
 ------------
 This project is available under MIT Licence.
