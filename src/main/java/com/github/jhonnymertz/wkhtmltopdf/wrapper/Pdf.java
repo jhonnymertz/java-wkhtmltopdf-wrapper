@@ -1,38 +1,39 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.Page;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class Pdf implements PdfService {
+public class Pdf {
 
     private static final String STDINOUT = "-";
 
-    private WrapperConfig wrapperConfig;
+    private final WrapperConfig wrapperConfig;
 
-    private Params params;
+    private final Params params;
 
-    private List<Page> pages;
+    private final List<Page> pages;
 
     private boolean hasToc = false;
+
+    public Pdf() {
+      this(new WrapperConfig());
+    }
 
     public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
         this.params = new Params();
         this.pages = new ArrayList<Page>();
-    }
-
-    public Pdf() {
-        this(new WrapperConfig());
     }
 
     public void addPage(String source, PageType type) {
@@ -43,58 +44,34 @@ public class Pdf implements PdfService {
         this.hasToc = true;
     }
 
-    public void addParam(Param param) {
-        params.add(param);
-    }
-
-    public void addParam(Param... params) {
-        for (Param param : params) {
-            addParam(param);
-        }
+    public void addParam(Param param, Param... params) {
+        this.params.add( param, params );
     }
 
     public void saveAs(String path) throws IOException, InterruptedException {
         saveAs(path, getPDF());
     }
 
-    private File saveAs(String path, byte[] document) throws IOException {
+    private static File saveAs(String path, byte[] document) throws IOException {
         File file = new File(path);
-
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
-        bufferedOutputStream.write(document);
-        bufferedOutputStream.flush();
-        bufferedOutputStream.close();
+        FileUtils.writeByteArrayToFile( file, document );
 
         return file;
     }
 
     public byte[] getPDF() throws IOException, InterruptedException {
-        Runtime runtime = Runtime.getRuntime();
-        Process process = runtime.exec(getCommandAsArray());
+        Process process = Runtime.getRuntime().exec(getCommandAsArray());
 
-        StreamEater outputStreamEater = new StreamEater(process.getInputStream());
-        outputStreamEater.start();
-
-        StreamEater errorStreamEater = new StreamEater(process.getErrorStream());
-        errorStreamEater.start();
-
-        outputStreamEater.join();
-        errorStreamEater.join();
+        byte[] inputBytes = IOUtils.toByteArray( process.getInputStream() );
+        byte[] errorBytes = IOUtils.toByteArray( process.getErrorStream() );
+        
         process.waitFor();
 
         if (process.exitValue() != 0) {
-            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorStreamEater.getBytes()));
+            throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorBytes));
         }
 
-        if (outputStreamEater.getError() != null) {
-            throw outputStreamEater.getError();
-        }
-
-        if (errorStreamEater.getError() != null) {
-            throw errorStreamEater.getError();
-        }
-
-        return outputStreamEater.getBytes();
+        return inputBytes;
     }
 
     private String[] getCommandAsArray() throws IOException {
@@ -129,41 +106,4 @@ public class Pdf implements PdfService {
         return StringUtils.join(getCommandAsArray(), " ");
     }
 
-    private class StreamEater extends Thread {
-
-        private InputStream stream;
-        private ByteArrayOutputStream bytes;
-
-        private IOException error;
-
-        public StreamEater(InputStream stream) {
-            this.stream = stream;
-
-            bytes = new ByteArrayOutputStream();
-        }
-
-        public void run() {
-            try {
-                int bytesRead = stream.read();
-                while (bytesRead >= 0) {
-                    bytes.write(bytesRead);
-                    bytesRead = stream.read();
-                }
-
-                stream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-
-                error = e;
-            }
-        }
-
-        public IOException getError() {
-            return error;
-        }
-
-        public byte[] getBytes() {
-            return bytes.toByteArray();
-        }
-    }
 }

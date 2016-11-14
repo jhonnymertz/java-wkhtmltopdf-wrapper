@@ -9,22 +9,18 @@ import java.util.List;
 public class XvfbConfig {
 
     private String command;
-    private Params params;
-
-    public XvfbConfig(String command) {
-        this.command = command;
-        params = new Params();
-    }
+    private final Params params = new Params();
 
     public XvfbConfig() {
-        command = "xvfb-run";
-        params = new Params();
+        this("xvfb-run");
     }
 
-    public void addParams(Param... params) {
-        for (Param param : params) {
-            this.params.add(param);
-        }
+    public XvfbConfig(String command) {
+        setCommand(command);
+    }
+
+    public void addParams(Param param, Param... params) {
+        this.params.add(param, params);
     }
 
     public String getCommand() {
