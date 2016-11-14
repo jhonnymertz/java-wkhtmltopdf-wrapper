@@ -1,8 +1,8 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import org.apache.commons.io.IOUtils;
 
 public class WrapperConfig {
 
@@ -10,12 +10,12 @@ public class WrapperConfig {
 
     private String wkhtmltopdfCommand = "wkhtmltopdf";
 
-    public WrapperConfig(String wkhtmltopdfCommand) {
-        this.wkhtmltopdfCommand = wkhtmltopdfCommand;
+    public WrapperConfig() {
+      setWkhtmltopdfCommand(findExecutable());
     }
 
-    public WrapperConfig() {
-        this.wkhtmltopdfCommand = findExecutable();
+    public WrapperConfig(String wkhtmltopdfCommand) {
+        setWkhtmltopdfCommand(wkhtmltopdfCommand);
     }
 
     public String getWkhtmltopdfCommand() {
@@ -32,32 +32,20 @@ public class WrapperConfig {
      * @return the wkhtmltopdf command according to the OS
      */
     public String findExecutable() {
-
         try {
-
             String osname = System.getProperty("os.name").toLowerCase();
 
-            String cmd;
-            if (osname.contains("windows"))
-                cmd = "where wkhtmltopdf";
-            else cmd = "which wkhtmltopdf";
+            String cmd = osname.contains("windows") ? "where wkhtmltopdf" : "which wkhtmltopdf";
 
             Process p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
 
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String text = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
 
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-
-            if (sb.toString().isEmpty())
+            if (text.isEmpty())
                 throw new RuntimeException();
 
-            setWkhtmltopdfCommand(sb.toString());
+            setWkhtmltopdfCommand(text);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (IOException e) {

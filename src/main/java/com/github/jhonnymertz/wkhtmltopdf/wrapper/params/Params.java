@@ -1,24 +1,22 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.params;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class Params {
 
-    private List<Param> params;
+    private Collection<Param> params;
 
     public Params() {
         this.params = new ArrayList<Param>();
     }
 
-    public void add(Param param) {
-        params.add(param);
-    }
-
-    public void add(Param... params) {
-        for (Param param : params) {
-            add(param);
-        }
+    public void add(Param param, Param... params) {
+        this.params.add(param);
+        this.params.addAll( Arrays.asList( params ) );
     }
 
     public List<String> getParamsAsStringList() {
@@ -39,11 +37,7 @@ public class Params {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (Param param : params) {
-            sb.append(param);
-        }
-        return sb.toString();
+      return StringUtils.join(params, "");
     }
 
 }

@@ -4,7 +4,7 @@ public enum Symbol {
 
     separator(" "), param("");
 
-    private String symbol;
+    private final String symbol;
 
     Symbol(String symbol) {
         this.symbol = symbol;

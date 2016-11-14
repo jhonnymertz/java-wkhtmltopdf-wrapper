@@ -8,11 +8,10 @@ public class Param {
     private String key;
 
     // Some commands accept more than one value such as cookies and headers
-    private List<String> values;
+    private List<String> values = new ArrayList<String>();
 
     public Param(String key, String... valueArray) {
         this.key = key;
-        this.values = new ArrayList<String>();
         for (String value : valueArray) {
             values.add(value);
         }
@@ -46,7 +45,7 @@ public class Param {
 
     @Deprecated
     public void setValue(String value) {
-        if (values.size() == 0) {
+        if (values.isEmpty()) {
             values.add(value);
         } else {
             values.set(0, value);
