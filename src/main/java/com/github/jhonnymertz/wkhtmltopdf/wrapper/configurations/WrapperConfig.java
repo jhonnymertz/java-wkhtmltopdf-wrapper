@@ -40,7 +40,7 @@ public class WrapperConfig {
             Process p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
 
-            String text = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
+            String text = IOUtils.toString(p.getInputStream(), Charset.defaultCharset()).trim();
 
             if (text.isEmpty())
                 throw new RuntimeException();
