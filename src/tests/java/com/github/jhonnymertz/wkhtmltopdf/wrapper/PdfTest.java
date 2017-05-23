@@ -1,7 +1,6 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -10,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 
 import static org.hamcrest.core.StringContains.containsString;
 
@@ -20,7 +20,7 @@ public class PdfTest {
         Pdf pdf = new Pdf();
         pdf.addToc();
         pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
-        pdf.addPage("http://www.google.com", PageType.url);
+        pdf.addPageFromUrl("http://www.google.com");
         Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
     }
 
@@ -35,7 +35,7 @@ public class PdfTest {
 
         // GIVEN a html template containing special characters that java stores in utf-16 internally
         Pdf pdf = new Pdf();
-        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>", PageType.htmlAsString);
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
 
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
@@ -53,10 +53,10 @@ public class PdfTest {
     @Test
     public void testMultiplePages() throws Exception {
         Pdf pdf = new Pdf();
-        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>", PageType.htmlAsString);
-        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Page 2</h1></html>", PageType.htmlAsString);
-        pdf.addPage("http://www.google.com", PageType.url);
-        pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Page 4</h1></html>", PageType.htmlAsString);
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>");
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 2</h1></html>");
+        pdf.addPageFromUrl("http://www.google.com");
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 4</h1></html>");
 
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
@@ -69,5 +69,17 @@ public class PdfTest {
         String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
 
         Assert.assertThat("document should contain the fourth page name", pdfText, containsString("Page 4"));
+    }
+
+    @Test
+    public void testRemovingGeneratedFile() throws Exception {
+        Pdf pdf = new Pdf();
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>");
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 2</h1></html>");
+        pdf.addPageFromUrl("http://www.google.com");
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 4</h1></html>");
+
+        File savedPdf = pdf.saveAs("output.pdf");
+        Assert.assertTrue(savedPdf.delete());
     }
 }
