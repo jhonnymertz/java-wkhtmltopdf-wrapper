@@ -80,13 +80,8 @@ public class Pdf {
     }
 
     public File saveAs(String path) throws IOException, InterruptedException {
-        return saveAs(path, getPDF());
-    }
-
-    private File saveAs(String path, byte[] document) throws IOException {
         File file = new File(path);
-        FileUtils.writeByteArrayToFile(file, document);
-
+        FileUtils.writeByteArrayToFile(file, getPDF());
         return file;
     }
 
