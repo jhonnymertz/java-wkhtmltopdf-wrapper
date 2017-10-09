@@ -11,9 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.*;
 
 /**
  * Represents a Pdf file
@@ -87,20 +89,23 @@ public class Pdf {
 
     public byte[] getPDF() throws IOException, InterruptedException {
 
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
         try {
             Process process = Runtime.getRuntime().exec(getCommandAsArray());
 
-            byte[] inputBytes = IOUtils.toByteArray(process.getInputStream());
-            byte[] errorBytes = IOUtils.toByteArray(process.getErrorStream());
+            Future<byte[]> inputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getInputStream()));
+            Future<byte[]> errorStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
 
             process.waitFor();
 
             if (process.exitValue() != 0) {
-                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorBytes));
+                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(getFuture(errorStreamToByteArray)));
             }
 
-            return inputBytes;
+            return getFuture(inputStreamToByteArray);
         } finally {
+            executor.shutdownNow();
             cleanTempFiles();
         }
     }
@@ -131,6 +136,22 @@ public class Pdf {
         }
         commandLine.add(STDINOUT);
         return commandLine.toArray(new String[commandLine.size()]);
+    }
+
+    private Callable<byte[]> streamToByteArrayTask(final InputStream input) {
+        return new Callable<byte[]>() {
+            public byte[] call() throws Exception {
+                return IOUtils.toByteArray(input);
+            }
+        };
+    }
+
+    private byte[] getFuture(Future<byte[]> future) {
+        try {
+            return future.get(10, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void cleanTempFiles() {
