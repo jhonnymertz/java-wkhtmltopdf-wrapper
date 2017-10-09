@@ -88,15 +88,14 @@ public class Pdf {
     public byte[] getPDF() throws IOException, InterruptedException {
 
         try {
-            Process process = Runtime.getRuntime().exec(getCommandAsArray());
+            Process process = (new ProcessBuilder(getCommandAsArray())).redirectErrorStream(true).start();
 
             byte[] inputBytes = IOUtils.toByteArray(process.getInputStream());
-            byte[] errorBytes = IOUtils.toByteArray(process.getErrorStream());
 
             process.waitFor();
 
             if (process.exitValue() != 0) {
-                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorBytes));
+                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(inputBytes));
             }
 
             return inputBytes;
