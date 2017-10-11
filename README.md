@@ -22,7 +22,7 @@ In your `build.gradle`:
 	}
 	
 	dependencies {
-		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.0.2-RELEASE'
+		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.0-RELEASE'
 	}
 ```
 
@@ -31,16 +31,16 @@ In your `pom.xml`:
 ```xml
 	<dependencies>
 		<dependency>
-				<groupId>com.github.jhonnymertz</groupId>
-				<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-				<version>1.1.0-RELEASE</version>
+			<groupId>com.github.jhonnymertz</groupId>
+			<artifactId>java-wkhtmltopdf-wrapper</artifactId>
+			<version>1.1.0-RELEASE</version>
 		</dependency>
 	</dependencies>
 
 	<repositories>
 		<repository>
-				<id>jitpack.io</id>
-				<url>https://jitpack.io</url>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 ```
