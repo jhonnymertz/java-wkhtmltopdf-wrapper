@@ -50,8 +50,8 @@ Usage
 ```
 Pdf pdf = new Pdf();
 
-pdf.addPage("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>", PageType.htmlAsString);
-pdf.addPage("http://www.google.com", PageType.url);
+pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
+pdf.addPageFromUrl("http://www.google.com");
 
 // Add a Table of contents
 pdf.addToc();
@@ -75,7 +75,7 @@ WrapperConfig wc = new WrapperConfig();
 wc.setXvfbConfig(xc);
 
 Pdf pdf = new Pdf(wc);
-pdf.addPage("http://www.google.com", PageType.url);
+pdf.addPageFromUrl("http://www.google.com");
 
 pdf.saveAs("output.pdf");
 ```
