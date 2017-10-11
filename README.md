@@ -33,7 +33,7 @@ In your `pom.xml`:
 		<dependency>
 				<groupId>com.github.jhonnymertz</groupId>
 				<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-				<version>1.0.2-RELEASE</version>
+				<version>1.1.0-RELEASE</version>
 		</dependency>
 	</dependencies>
 
@@ -83,7 +83,7 @@ pdf.saveAs("output.pdf");
 Snapshots
 ---------
 
-Snapshots built from the `master` branch are available through jitpack using version `1.1.0-SNAPSHOT`
+Snapshots built from the `master` branch are available through jitpack using version `1.2.0-SNAPSHOT`
 
 License
 ------------
