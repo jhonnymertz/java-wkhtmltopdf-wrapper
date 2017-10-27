@@ -34,7 +34,7 @@ public class XvfbTest {
         wc.setXvfbConfig(xc);
 
         Pdf pdf = new Pdf(wc);
-        pdf.addPage("http://www.google.com", PageType.url);
+        pdf.addPage("http://www.google.cn/maps", PageType.url);
 
         pdf.saveAs("output.pdf");
 
