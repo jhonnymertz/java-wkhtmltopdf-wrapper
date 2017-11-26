@@ -28,6 +28,8 @@ public class Pdf {
 
     private final Params params;
 
+    private final Params tocParams;
+
     private final List<Page> pages;
 
     private boolean hasToc = false;
@@ -39,6 +41,7 @@ public class Pdf {
     public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
         this.params = new Params();
+        this.tocParams = new Params();
         this.pages = new ArrayList<Page>();
     }
 
@@ -81,6 +84,10 @@ public class Pdf {
         this.params.add(param, params);
     }
 
+    public void addTocParam(Param param, Param... params) {
+        this.tocParams.add(param, params);
+    }
+
     public File saveAs(String path) throws IOException, InterruptedException {
         File file = new File(path);
         FileUtils.writeByteArrayToFile(file, getPDF());
@@ -120,8 +127,10 @@ public class Pdf {
 
         commandLine.addAll(params.getParamsAsStringList());
 
-        if (hasToc)
+        if (hasToc) {
             commandLine.add("toc");
+            commandLine.addAll(tocParams.getParamsAsStringList());
+        }
 
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
