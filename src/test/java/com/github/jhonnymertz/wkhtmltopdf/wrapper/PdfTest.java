@@ -72,6 +72,27 @@ public class PdfTest {
     }
 
     @Test
+    public void callingGetCommandFollowedByGetPdfShouldNotInfluenceTheOutput() throws Exception {
+        Pdf pdf = new Pdf();
+
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Twice</h1></html>");
+
+        // WHEN
+        pdf.getCommand();//The command side effect cause the second call to getPDF to go wrong
+
+        byte[] pdfBytes = pdf.getPDF();
+
+        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
+
+        // that is a valid PDF (otherwise an IOException occurs)
+        parser.parse();
+        PDFTextStripper pdfTextStripper = new PDFTextStripper();
+        String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+
+        Assert.assertThat("document should contain the string that was originally inserted", pdfText, containsString("Twice"));
+    }
+
+    @Test
     public void testRemovingGeneratedFile() throws Exception {
         Pdf pdf = new Pdf();
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>");
