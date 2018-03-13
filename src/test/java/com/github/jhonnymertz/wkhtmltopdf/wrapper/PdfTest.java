@@ -2,6 +2,7 @@ package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
+import java.io.IOException;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -40,12 +41,7 @@ public class PdfTest {
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
 
-        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
-
-        // that is a valid PDF (otherwise an IOException occurs)
-        parser.parse();
-        PDFTextStripper pdfTextStripper = new PDFTextStripper();
-        String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+        String pdfText = getPdfTextFromBytes(pdfBytes);
 
         Assert.assertThat("document should contain the creditorName", pdfText, containsString("Müller"));
     }
@@ -61,14 +57,25 @@ public class PdfTest {
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
 
-        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
-
-        // that is a valid PDF (otherwise an IOException occurs)
-        parser.parse();
-        PDFTextStripper pdfTextStripper = new PDFTextStripper();
-        String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+        String pdfText = getPdfTextFromBytes(pdfBytes);
 
         Assert.assertThat("document should contain the fourth page name", pdfText, containsString("Page 4"));
+    }
+
+    @Test
+    public void callingGetCommandFollowedByGetPdfShouldNotInfluenceTheOutput() throws Exception {
+        Pdf pdf = new Pdf();
+
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Twice</h1></html>");
+
+        // WHEN
+        pdf.getCommand();
+        //Followed by
+        byte[] pdfBytes = pdf.getPDF();//Causes the page fromString's content to have become the file path
+
+        String pdfText = getPdfTextFromBytes(pdfBytes);
+
+        Assert.assertThat("document should contain the string that was originally inserted", pdfText, containsString("Twice"));
     }
 
     @Test
@@ -81,5 +88,14 @@ public class PdfTest {
 
         File savedPdf = pdf.saveAs("output.pdf");
         Assert.assertTrue(savedPdf.delete());
+    }
+
+    private String getPdfTextFromBytes(byte[] pdfBytes) throws IOException {
+        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
+
+        // that is a valid PDF (otherwise an IOException occurs)
+        parser.parse();
+        PDFTextStripper pdfTextStripper = new PDFTextStripper();
+        return pdfTextStripper.getText(new PDDocument(parser.getDocument()));
     }
 }

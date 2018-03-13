@@ -138,10 +138,11 @@ public class Pdf {
                 File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html");
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
 
-                page.setSource(temp.getAbsolutePath());
+                commandLine.add(temp.getAbsolutePath());
             }
-
-            commandLine.add(page.getSource());
+            else {
+                commandLine.add(page.getSource());
+            }
         }
         commandLine.add(STDINOUT);
         return commandLine.toArray(new String[commandLine.size()]);
