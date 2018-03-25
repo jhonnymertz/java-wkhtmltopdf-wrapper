@@ -96,6 +96,9 @@ public class PdfTest {
         // that is a valid PDF (otherwise an IOException occurs)
         parser.parse();
         PDFTextStripper pdfTextStripper = new PDFTextStripper();
-        return pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+        PDDocument pdDocument = new PDDocument(parser.getDocument());
+        String text = pdfTextStripper.getText(pdDocument);
+        pdDocument.close();
+        return text;
     }
 }

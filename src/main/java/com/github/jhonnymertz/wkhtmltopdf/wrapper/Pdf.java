@@ -8,11 +8,14 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -21,6 +24,8 @@ import java.util.concurrent.*;
  * Represents a Pdf file
  */
 public class Pdf {
+
+    private static final Logger logger = LoggerFactory.getLogger(Pdf.class);
 
     private static final String STDINOUT = "-";
 
@@ -43,6 +48,7 @@ public class Pdf {
         this.params = new Params();
         this.tocParams = new Params();
         this.pages = new ArrayList<Page>();
+        logger.info("Initialized with {}", wrapperConfig);
     }
 
     /**
@@ -91,6 +97,7 @@ public class Pdf {
     public File saveAs(String path) throws IOException, InterruptedException {
         File file = new File(path);
         FileUtils.writeByteArrayToFile(file, getPDF());
+        logger.info("PDF successfully saved in {}", file.getAbsolutePath());
         return file;
     }
 
@@ -99,19 +106,27 @@ public class Pdf {
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         try {
+            logger.debug("Generating pdf with: {}", getCommand());
             Process process = Runtime.getRuntime().exec(getCommandAsArray());
 
             Future<byte[]> inputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getInputStream()));
-            Future<byte[]> errorStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
+            Future<byte[]> outputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
 
             process.waitFor();
 
             if (process.exitValue() != 0) {
-                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(getFuture(errorStreamToByteArray)));
+                byte[] errorStream = getFuture(outputStreamToByteArray);
+                logger.error("Error while generating pdf: {}", new String(errorStream));
+                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorStream));
+            }
+            else{
+                logger.debug("Wkhtmltopdf output:\n{}", new String(getFuture(outputStreamToByteArray)));
             }
 
+            logger.info("PDF successfully generated with: {}", getCommand());
             return getFuture(inputStreamToByteArray);
         } finally {
+            logger.debug("Shutting down executor for wkhtmltopdf.");
             executor.shutdownNow();
             cleanTempFiles();
         }
@@ -165,6 +180,7 @@ public class Pdf {
     }
 
     private void cleanTempFiles() {
+        logger.debug("Cleaning up temporary files...");
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
                 new File(page.getSource()).delete();

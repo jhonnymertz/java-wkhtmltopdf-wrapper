@@ -40,4 +40,11 @@ public class XvfbConfig {
         return commandLine;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "command='" + command + '\'' +
+                ", params=" + params +
+                '}';
+    }
 }
