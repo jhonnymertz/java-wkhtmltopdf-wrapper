@@ -22,7 +22,7 @@ In your `build.gradle`:
 	}
 	
 	dependencies {
-		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.1-RELEASE'
+		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.2-RELEASE'
 	}
 ```
 
@@ -33,7 +33,7 @@ In your `pom.xml`:
 		<dependency>
 			<groupId>com.github.jhonnymertz</groupId>
 			<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-			<version>1.1.1-RELEASE</version>
+			<version>1.1.2-RELEASE</version>
 		</dependency>
 	</dependencies>
 
@@ -82,11 +82,6 @@ pdf.addPageFromUrl("http://www.google.com");
 
 pdf.saveAs("output.pdf");
 ```
-
-Snapshots
----------
-
-Snapshots built from the `master` branch are available through jitpack using version `1.2.0-SNAPSHOT`
 
 License
 ------------
