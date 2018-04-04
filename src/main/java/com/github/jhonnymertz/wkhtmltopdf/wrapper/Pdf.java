@@ -15,10 +15,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a Pdf file
@@ -38,6 +41,8 @@ public class Pdf {
     private final List<Page> pages;
 
     private boolean hasToc = false;
+
+    private int timeout = 10;
 
     public Pdf() {
         this(new WrapperConfig());
@@ -94,6 +99,10 @@ public class Pdf {
         this.tocParams.add(param, params);
     }
 
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     public File saveAs(String path) throws IOException, InterruptedException {
         File file = new File(path);
         FileUtils.writeByteArrayToFile(file, getPDF());
@@ -101,7 +110,7 @@ public class Pdf {
         return file;
     }
 
-    public byte[] getPDF() throws IOException, InterruptedException {
+    public byte[] getPDF() throws IOException, InterruptedException, PDFExportException {
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -117,9 +126,8 @@ public class Pdf {
             if (process.exitValue() != 0) {
                 byte[] errorStream = getFuture(outputStreamToByteArray);
                 logger.error("Error while generating pdf: {}", new String(errorStream));
-                throw new RuntimeException("Process (" + getCommand() + ") exited with status code " + process.exitValue() + ":\n" + new String(errorStream));
-            }
-            else{
+                throw new PDFExportException(getCommand(), process.exitValue(), errorStream, getFuture(inputStreamToByteArray));
+            } else {
                 logger.debug("Wkhtmltopdf output:\n{}", new String(getFuture(outputStreamToByteArray)));
             }
 
@@ -135,8 +143,9 @@ public class Pdf {
     private String[] getCommandAsArray() throws IOException {
         List<String> commandLine = new ArrayList<String>();
 
-        if (wrapperConfig.isXvfbEnabled())
+        if (wrapperConfig.isXvfbEnabled()) {
             commandLine.addAll(wrapperConfig.getXvfbConfig().getCommandLine());
+        }
 
         commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
 
@@ -154,8 +163,7 @@ public class Pdf {
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
 
                 commandLine.add(temp.getAbsolutePath());
-            }
-            else {
+            } else {
                 commandLine.add(page.getSource());
             }
         }
@@ -173,7 +181,7 @@ public class Pdf {
 
     private byte[] getFuture(Future<byte[]> future) {
         try {
-            return future.get(10, TimeUnit.SECONDS);
+            return future.get(this.timeout, TimeUnit.SECONDS);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
