@@ -42,6 +42,8 @@ public class Pdf {
 
     private boolean hasToc = false;
 
+    private int timeout = 10;
+
     public Pdf() {
         this(new WrapperConfig());
     }
@@ -95,6 +97,10 @@ public class Pdf {
 
     public void addTocParam(Param param, Param... params) {
         this.tocParams.add(param, params);
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public File saveAs(String path) throws IOException, InterruptedException {
@@ -175,7 +181,7 @@ public class Pdf {
 
     private byte[] getFuture(Future<byte[]> future) {
         try {
-            return future.get(10, TimeUnit.SECONDS);
+            return future.get(this.timeout, TimeUnit.SECONDS);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
