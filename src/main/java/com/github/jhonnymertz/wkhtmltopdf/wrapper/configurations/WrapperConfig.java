@@ -54,11 +54,9 @@ public class WrapperConfig {
             logger.debug("Wkhtmltopdf command found in classpath: {}", text);
             setWkhtmltopdfCommand(text);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Fatal:",e);
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (RuntimeException e) {
-            e.printStackTrace();
+            logger.error("Fatal:",e);
         }
 
         return getWkhtmltopdfCommand();

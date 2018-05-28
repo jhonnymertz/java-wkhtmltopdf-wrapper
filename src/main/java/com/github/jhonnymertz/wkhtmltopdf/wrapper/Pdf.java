@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -115,8 +118,9 @@ public class Pdf {
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         try {
-            logger.debug("Generating pdf with: {}", getCommand());
-            Process process = Runtime.getRuntime().exec(getCommandAsArray());
+            String command = getCommand();
+            logger.debug("Generating pdf with: {}", command);
+            Process process = Runtime.getRuntime().exec(command);
 
             Future<byte[]> inputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getInputStream()));
             Future<byte[]> outputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
@@ -126,12 +130,12 @@ public class Pdf {
             if (process.exitValue() != 0) {
                 byte[] errorStream = getFuture(outputStreamToByteArray);
                 logger.error("Error while generating pdf: {}", new String(errorStream));
-                throw new PDFExportException(getCommand(), process.exitValue(), errorStream, getFuture(inputStreamToByteArray));
+                throw new PDFExportException(command, process.exitValue(), errorStream, getFuture(inputStreamToByteArray));
             } else {
                 logger.debug("Wkhtmltopdf output:\n{}", new String(getFuture(outputStreamToByteArray)));
             }
 
-            logger.info("PDF successfully generated with: {}", getCommand());
+            logger.info("PDF successfully generated with: {}", command);
             return getFuture(inputStreamToByteArray);
         } finally {
             logger.debug("Shutting down executor for wkhtmltopdf.");
@@ -161,13 +165,15 @@ public class Pdf {
 
                 File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html");
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
-
+                page.setFilePath(temp.getAbsolutePath());
                 commandLine.add(temp.getAbsolutePath());
             } else {
+                //Add source
                 commandLine.add(page.getSource());
             }
         }
         commandLine.add(STDINOUT);
+        logger.debug(commandLine.toString());
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
@@ -191,7 +197,12 @@ public class Pdf {
         logger.debug("Cleaning up temporary files...");
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
-                new File(page.getSource()).delete();
+                try {
+                    Path p = Paths.get(page.getFilePath());
+                    logger.debug("Delete temp file at: " + page.getFilePath() + " " + Files.deleteIfExists(p));
+                } catch (IOException ex) {
+                    logger.warn("Couldn't delete temp file " + page.getFilePath());
+                }
             }
         }
     }
