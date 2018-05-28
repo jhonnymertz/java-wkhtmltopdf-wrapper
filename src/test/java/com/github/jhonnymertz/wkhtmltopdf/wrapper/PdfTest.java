@@ -28,7 +28,12 @@ public class PdfTest {
     @Test
     public void findExecutable() throws Exception {
         WrapperConfig wc = new WrapperConfig();
-        Assert.assertThat("executable should be /usr/bin/wkhtmltopdf", wc.findExecutable(), containsString("/usr/bin/wkhtmltopdf"));
+        //see if executable is installed
+        try {
+            wc.findExecutable();
+        }catch(RuntimeException ex){
+            Assert.fail(ex.getMessage());
+        }
     }
 
     @Test
