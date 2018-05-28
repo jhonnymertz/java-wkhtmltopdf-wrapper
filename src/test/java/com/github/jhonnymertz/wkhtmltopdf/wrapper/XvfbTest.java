@@ -26,15 +26,17 @@ public class XvfbTest {
 
     @Test
     public void testPdfWithXvfb() throws Exception {
+        //Dunno i don't need this test, so for
+        WrapperConfig wc = null;
+        if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+            XvfbConfig xc = new XvfbConfig();
+            xc.addParams(new Param("--auto-servernum"), new Param("--server-num=1"));
 
-        XvfbConfig xc = new XvfbConfig();
-        xc.addParams(new Param("--auto-servernum"), new Param("--server-num=1"));
-
-        WrapperConfig wc = new WrapperConfig();
-        wc.setXvfbConfig(xc);
-
-        Pdf pdf = new Pdf(wc);
-        pdf.addPage("http://www.google.com", PageType.url);
+            wc = new WrapperConfig();
+            wc.setXvfbConfig(xc);
+        }
+        Pdf pdf = wc != null ? new Pdf(wc) : new Pdf();
+        pdf.addPageFromUrl("http://www.google.com");
 
         pdf.saveAs("output.pdf");
 
