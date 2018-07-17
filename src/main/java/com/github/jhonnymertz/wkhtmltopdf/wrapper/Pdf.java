@@ -47,6 +47,8 @@ public class Pdf {
 
     private int timeout = 10;
 
+    private File tempDirectory;
+
     public Pdf() {
         this(new WrapperConfig());
     }
@@ -106,6 +108,10 @@ public class Pdf {
         this.timeout = timeout;
     }
 
+    public void setTempDirectory(File tempDirectory) {
+        this.tempDirectory = tempDirectory;
+    }
+
     public File saveAs(String path) throws IOException, InterruptedException {
         File file = new File(path);
         FileUtils.writeByteArrayToFile(file, getPDF());
@@ -163,7 +169,7 @@ public class Pdf {
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
 
-                File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html");
+                File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html", tempDirectory);
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
                 page.setFilePath(temp.getAbsolutePath());
                 commandLine.add(temp.getAbsolutePath());
