@@ -126,7 +126,7 @@ public class Pdf {
         try {
             String command = getCommand();
             logger.debug("Generating pdf with: {}", command);
-            Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec(getCommandAsArray());
 
             Future<byte[]> inputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getInputStream()));
             Future<byte[]> outputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
