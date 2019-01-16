@@ -3,7 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
-    <version>1.1.4-RELEASE</version>
+    <version>1.1.5-RELEASE</version>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <dependencies>
 
@@ -17,7 +25,7 @@
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>1.8.12</version>
+            <version>1.8.16</version>
             <scope>test</scope>
         </dependency>
 
