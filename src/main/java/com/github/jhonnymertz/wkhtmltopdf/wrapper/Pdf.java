@@ -1,6 +1,7 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFExportException;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.Page;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
@@ -45,6 +46,9 @@ public class Pdf {
 
     private boolean hasToc = false;
 
+    /**
+     * Timeout to wait while generating a PDF, in seconds
+     */
     private int timeout = 10;
 
     private File tempDirectory;
@@ -104,10 +108,18 @@ public class Pdf {
         this.tocParams.add(param, params);
     }
 
+    /**
+     * Sets the timeout to wait while generating a PDF, in seconds
+     */
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
 
+    /**
+     * Sets the temporary folder to store files during the process
+     * Default is provided by #File.createTempFile()
+     * @param tempDirectory
+     */
     public void setTempDirectory(File tempDirectory) {
         this.tempDirectory = tempDirectory;
     }
@@ -168,18 +180,18 @@ public class Pdf {
 
         for (Page page : pages) {
             if (page.getType().equals(PageType.htmlAsString)) {
-
+                //htmlAsString pages are first store into a temp file, then the location is passed as parameter to
+                // wkhtmltopdf, this is a workaround to avoid huge commands
                 File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html", tempDirectory);
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
                 page.setFilePath(temp.getAbsolutePath());
                 commandLine.add(temp.getAbsolutePath());
             } else {
-                //Add source
                 commandLine.add(page.getSource());
             }
         }
         commandLine.add(STDINOUT);
-        logger.debug(commandLine.toString());
+        logger.debug("Command generated: {}", commandLine.toString());
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
@@ -213,6 +225,11 @@ public class Pdf {
         }
     }
 
+    /**
+     * Gets the final wkhtmltopdf command as string
+     * @return the generated command from params
+     * @throws IOException
+     */
     public String getCommand() throws IOException {
         return StringUtils.join(getCommandAsArray(), " ");
     }

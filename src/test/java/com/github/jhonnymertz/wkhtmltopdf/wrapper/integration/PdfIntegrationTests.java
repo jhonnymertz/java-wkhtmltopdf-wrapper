@@ -1,8 +1,9 @@
-package com.github.jhonnymertz.wkhtmltopdf.wrapper;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper.integration;
 
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
-import java.io.IOException;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -11,19 +12,11 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-public class PdfTest {
-
-    @Test
-    public void testCommand() throws Exception {
-        Pdf pdf = new Pdf();
-        pdf.addToc();
-        pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
-        pdf.addPageFromUrl("http://www.google.com");
-        Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
-    }
+public class PdfIntegrationTests {
 
     @Test
     public void findExecutable() throws Exception {
@@ -105,5 +98,44 @@ public class PdfTest {
         String text = pdfTextStripper.getText(pdDocument);
         pdDocument.close();
         return text;
+    }
+
+    @Test
+    public void CleanUpTempFilesTest(){
+        Pdf pdf = new Pdf();
+        pdf.addPageFromString("<!DOCTYPE html><head><title>title</title></head><body><p>TEST</p></body>");
+        try {
+            pdf.getPDF();
+        } catch(Exception ex){
+            Assert.fail(ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testPdfWithXvfb() throws Exception {
+        WrapperConfig wc = null;
+        if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+            XvfbConfig xc = new XvfbConfig();
+            xc.addParams(new Param("--auto-servernum"), new Param("--server-num=1"));
+
+            wc = new WrapperConfig();
+            wc.setXvfbConfig(xc);
+        }
+        Pdf pdf = wc != null ? new Pdf(wc) : new Pdf();
+        pdf.addPageFromUrl("http://www.google.com");
+
+        pdf.saveAs("output.pdf");
+
+        // WHEN
+        byte[] pdfBytes = pdf.getPDF();
+
+        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
+
+        // that is a valid PDF (otherwise an IOException occurs)
+        parser.parse();
+        PDFTextStripper pdfTextStripper = new PDFTextStripper();
+        String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+
+        Assert.assertThat("document should be generated", pdfText, containsString("Google"));
     }
 }
