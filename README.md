@@ -15,34 +15,19 @@ If you are using Gradle/Maven, see example below:
 ##### Gradle
 In your `build.gradle`:
 ```groovy
-	allprojects {
-		repositories {
-			maven { url "https://jitpack.io" }
-		}
-	}
-	
 	dependencies {
-		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.5-RELEASE'
+		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.8-RELEASE'
 	}
 ```
 
 ##### Maven
 In your `pom.xml`:
 ```xml
-	<dependencies>
-		<dependency>
-			<groupId>com.github.jhonnymertz</groupId>
-			<artifactId>java-wkhtmltopdf-wrapper</artifactId>
-			<version>1.1.5-RELEASE</version>
-		</dependency>
-	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+	<dependency>
+    <groupId>com.github.jhonnymertz</groupId>
+    <artifactId>java-wkhtmltopdf-wrapper</artifactId>
+    <version>1.1.8-RELEASE</version>
+  </dependency>
 ```
 
 Usage
