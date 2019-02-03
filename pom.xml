@@ -4,6 +4,16 @@
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
     <version>1.1.6-RELEASE</version>
+    <packaging>jar</packaging>
+
+    <name>Java WkHtmlToPdf Wrapper</name>
+    <description>A Java based wrapper for the wkhtmltopdf command line tool. As the name implies, it uses WebKit to convert HTML documents to PDFs.</description>
+    <url>https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper</url>
+
+    <issueManagement>
+        <url>https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
 
     <licenses>
         <license>
@@ -12,6 +22,21 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <scm>
+        <url>https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper</url>
+        <connection>scm:git:git://github.com/jhonnymertz/java-wkhtmltopdf-wrapper.git</connection>
+        <developerConnection>scm:git:git@github.com:jhonnymertz/java-wkhtmltopdf-wrapper.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>jhonnymertz@gmail.com</email>
+            <name>Jhonny Mertz</name>
+            <url>https://github.com/jhonnymertz</url>
+            <id>jhonnymertz</id>
+        </developer>
+    </developers>
 
     <dependencies>
 
