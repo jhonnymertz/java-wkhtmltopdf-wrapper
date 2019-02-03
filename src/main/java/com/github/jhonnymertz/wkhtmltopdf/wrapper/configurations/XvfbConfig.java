@@ -6,6 +6,9 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Wrapper for Xvfb parameters and configuration
+ */
 public class XvfbConfig {
 
     private String command;

@@ -1,10 +1,7 @@
-package com.github.jhonnymertz.wkhtmltopdf.wrapper;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions;
 
 /**
- * PDFExportError.
- *
- * @author evgeni.gordeev
- * @version 1.1.3
+ * Exception to describe and track pdf exporting errors
  */
 public class PDFExportException extends RuntimeException {
 
