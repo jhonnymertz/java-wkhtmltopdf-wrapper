@@ -2,6 +2,7 @@ language: java
 branches: 
 only:
 - master
+- travis-to-mavencentral
 cache:
   directories:
   - "$HOME/.m2"
