@@ -68,6 +68,24 @@ pdf.addPageFromUrl("http://www.google.com");
 pdf.saveAs("output.pdf");
 ```
 
+wkhtmltopdf exit codes
+------------
+wkhtmltopdf may return non-zero exit codes to denote warnings, you can now set the Pdf 
+object to allow this:
+```
+
+Pdf pdf = new Pdf(wc);
+pdf.addPageFromUrl("http://www.google.com");
+
+pdf.setAllowMissingAssets();
+// or:  
+pdf.setSuccessValues(Arrays.asList(0, 1));
+
+pdf.saveAs("output.pdf");
+```
+
+
+
 License
 ------------
 This project is available under MIT Licence.
