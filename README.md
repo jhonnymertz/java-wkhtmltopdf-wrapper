@@ -16,7 +16,7 @@ If you are using Gradle/Maven, see example below:
 In your `build.gradle`:
 ```groovy
 dependencies {
-    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.8-RELEASE'
+    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.9-RELEASE'
 }
 ```
 
@@ -26,7 +26,7 @@ In your `pom.xml`:
 <dependency>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
-    <version>1.1.8-RELEASE</version>
+    <version>1.1.9-RELEASE</version>
 </dependency>
 ```
 
@@ -69,9 +69,8 @@ pdf.saveAs("output.pdf");
 ```
 
 ### wkhtmltopdf exit codes
-------------
-wkhtmltopdf may return non-zero exit codes to denote warnings, you can now set the Pdf 
-object to allow this:
+
+wkhtmltopdf may return non-zero exit codes to denote warnings, you can now set the Pdf object to allow this:
 ```
 
 Pdf pdf = new Pdf(wc);
