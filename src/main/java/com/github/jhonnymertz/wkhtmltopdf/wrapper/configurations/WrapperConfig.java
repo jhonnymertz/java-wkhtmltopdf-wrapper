@@ -67,7 +67,7 @@ public class WrapperConfig {
         try {
             String osname = System.getProperty("os.name").toLowerCase();
 
-            String cmd = osname.contains("windows") ? "where wkhtmltopdf" : "which wkhtmltopdf";
+            String cmd = osname.contains("windows") ? "where.exe wkhtmltopdf" : "which wkhtmltopdf";
 
             Process p = Runtime.getRuntime().exec(cmd);
             p.waitFor();
