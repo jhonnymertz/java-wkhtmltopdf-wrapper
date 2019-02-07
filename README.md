@@ -12,25 +12,25 @@ Make sure you have Java Wrapper dependency added to your project.
 
 If you are using Gradle/Maven, see example below:
 
-##### Gradle
+#### Gradle
 In your `build.gradle`:
 ```groovy
-	dependencies {
-		compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.8-RELEASE'
-	}
+dependencies {
+    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.8-RELEASE'
+}
 ```
 
-##### Maven
+#### Maven
 In your `pom.xml`:
 ```xml
-	<dependency>
+<dependency>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
     <version>1.1.8-RELEASE</version>
-  </dependency>
+</dependency>
 ```
 
-Usage
+Usage and Examples
 ------------
 ```
 Pdf pdf = new Pdf();
@@ -53,8 +53,8 @@ pdf.addTocParam(new Param("--xsl-style-sheet", "my_toc.xsl"));
 pdf.saveAs("output.pdf");
 ```
 
-Xvfb Support
-------------
+### Xvfb Support
+
 ```
 XvfbConfig xc = new XvfbConfig();
 xc.addParams(new Param("--auto-servernum"), new Param("--server-num=1"));
@@ -67,6 +67,14 @@ pdf.addPageFromUrl("http://www.google.com");
 
 pdf.saveAs("output.pdf");
 ```
+
+This is not an official Wkhtmltopdf product
+------------
+This library is not an official Wkhtmltopdf product. Support is available on a best-effort basis via github issue tracking. Pull requests are welcomed.
+
+Bugs
+------------
+- Tests are incomplete
 
 License
 ------------
