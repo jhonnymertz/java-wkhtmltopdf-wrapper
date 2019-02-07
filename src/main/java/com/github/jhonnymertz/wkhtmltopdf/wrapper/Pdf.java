@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -52,6 +53,8 @@ public class Pdf {
     private int timeout = 10;
 
     private File tempDirectory;
+
+    private List<Integer> successValues = new ArrayList<Integer>(Arrays.asList(0));
 
     public Pdf() {
         this(new WrapperConfig());
@@ -116,6 +119,32 @@ public class Pdf {
     }
 
     /**
+     * wkhtmltopdf often returns 1 to indicate some assets can't be found,
+     *  this can occur for protocol less links or in other cases. Sometimes you
+     *  may want to reject these with an exception which is the default, but in other
+     *  cases the PDF is fine for your needs.  Call this method allow return values of 1.
+     */
+    public void setAllowMissingAssets() {
+        if (!successValues.contains(1)) {
+            successValues.add(1);
+        }
+    }
+
+    public boolean getAllowMissingAssets() {
+        return successValues.contains(1);
+    }
+
+    /**
+     * In standard process returns 0 means "ok" and any other value is an error.  However, wkhtmltopdf
+     * uses the return value to also return warning information which you may decide to ignore (@see setAllowMissingAssets)
+     *
+     * @param successValues  The full list of process return values you will accept as a 'success'.
+     */
+    public void setSuccessValues(List<Integer> successValues) {
+        this.successValues = successValues;
+    }
+
+    /**
      * Sets the temporary folder to store files during the process
      * Default is provided by #File.createTempFile()
      * @param tempDirectory
@@ -145,7 +174,7 @@ public class Pdf {
 
             process.waitFor();
 
-            if (process.exitValue() != 0) {
+            if (!successValues.contains( process.exitValue() )) {
                 byte[] errorStream = getFuture(outputStreamToByteArray);
                 logger.error("Error while generating pdf: {}", new String(errorStream));
                 throw new PDFExportException(command, process.exitValue(), errorStream, getFuture(inputStreamToByteArray));
