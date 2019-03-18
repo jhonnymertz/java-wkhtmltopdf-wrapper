@@ -54,6 +54,8 @@ public class Pdf {
 
     private File tempDirectory;
 
+    private String outputFilename = null;
+
     private List<Integer> successValues = new ArrayList<Integer>(Arrays.asList(0));
 
     public Pdf() {
@@ -153,10 +155,31 @@ public class Pdf {
         this.tempDirectory = tempDirectory;
     }
 
+    /**
+     * Executes the wkhtmltopdf into standard out and captures the results.
+     * @param path The path to the file where the PDF will be saved.
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public File saveAs(String path) throws IOException, InterruptedException {
         File file = new File(path);
         FileUtils.writeByteArrayToFile(file, getPDF());
         logger.info("PDF successfully saved in {}", file.getAbsolutePath());
+        return file;
+    }
+
+    /**
+     * Executes the wkhtmltopdf saving the results directly to the specified file path.
+     * @param path The path to the file where the PDF will be saved.
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public File saveAsDirect(String path)throws IOException, InterruptedException  {
+        File file = new File(path);
+        outputFilename = file.getAbsolutePath();
+        getPDF();
         return file;
     }
 
@@ -191,7 +214,7 @@ public class Pdf {
         }
     }
 
-    private String[] getCommandAsArray() throws IOException {
+    protected String[] getCommandAsArray() throws IOException {
         List<String> commandLine = new ArrayList<String>();
 
         if (wrapperConfig.isXvfbEnabled()) {
@@ -219,7 +242,7 @@ public class Pdf {
                 commandLine.add(page.getSource());
             }
         }
-        commandLine.add(STDINOUT);
+        commandLine.add( (null != outputFilename) ? outputFilename : STDINOUT);
         logger.debug("Command generated: {}", commandLine.toString());
         return commandLine.toArray(new String[commandLine.size()]);
     }
