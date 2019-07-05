@@ -4,9 +4,8 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
-import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -89,13 +88,9 @@ public class PdfIntegrationTests {
     }
 
     private String getPdfTextFromBytes(byte[] pdfBytes) throws IOException {
-        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
+        PDDocument pdDocument = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+        String text = new PDFTextStripper().getText(pdDocument);
 
-        // that is a valid PDF (otherwise an IOException occurs)
-        parser.parse();
-        PDFTextStripper pdfTextStripper = new PDFTextStripper();
-        PDDocument pdDocument = new PDDocument(parser.getDocument());
-        String text = pdfTextStripper.getText(pdDocument);
         pdDocument.close();
         return text;
     }
@@ -128,13 +123,8 @@ public class PdfIntegrationTests {
 
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
-
-        PDFParser parser = new PDFParser(new ByteArrayInputStream(pdfBytes));
-
-        // that is a valid PDF (otherwise an IOException occurs)
-        parser.parse();
-        PDFTextStripper pdfTextStripper = new PDFTextStripper();
-        String pdfText = pdfTextStripper.getText(new PDDocument(parser.getDocument()));
+        PDDocument pdDocument = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+        String pdfText = new PDFTextStripper().getText(pdDocument);
 
         Assert.assertThat("document should be generated", pdfText, containsString("Google"));
     }

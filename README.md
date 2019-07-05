@@ -16,7 +16,7 @@ If you are using Gradle/Maven, see example below:
 In your `build.gradle`:
 ```groovy
 dependencies {
-    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.10-RELEASE'
+    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.11-RELEASE'
 }
 ```
 
@@ -26,7 +26,7 @@ In your `pom.xml`:
 <dependency>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
-    <version>1.1.10-RELEASE</version>
+    <version>1.1.11-RELEASE</version>
 </dependency>
 ```
 
