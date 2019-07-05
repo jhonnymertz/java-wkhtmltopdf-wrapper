@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
-    <version>1.1.10-RELEASE</version>
+    <version>1.1.11-RELEASE</version>
     <packaging>jar</packaging>
 
     <name>Java WkHtmlToPdf Wrapper</name>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>1.8.16</version>
+            <version>2.0.15</version>
             <scope>test</scope>
         </dependency>
 
