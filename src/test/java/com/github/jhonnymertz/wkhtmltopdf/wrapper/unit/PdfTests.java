@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-public class PdfTest {
+public class PdfTests {
 
     private WrapperConfig wc;
     private Pdf pdf;

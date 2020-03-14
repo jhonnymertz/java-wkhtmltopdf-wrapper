@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.hamcrest.core.StringContains.containsString;
 
-public class XvfbConfigTest {
+public class XvfbConfigTests {
 
     private WrapperConfig wc;
 
