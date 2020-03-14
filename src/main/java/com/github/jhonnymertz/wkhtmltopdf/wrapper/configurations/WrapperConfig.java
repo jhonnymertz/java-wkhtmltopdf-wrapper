@@ -1,12 +1,13 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.WkhtmltopdfConfigurationException;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.WrapperConfigException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * Provides wrapper configuration such as the xvfb configuration and wkhtmltopdf command to be used
@@ -27,7 +28,10 @@ public class WrapperConfig {
 
     /**
      * Initialize the configuration based on searching for wkhtmltopdf command to be used into the SO's path
+     *
+     * @deprecated Use the constructor specifying the location of wkhtmltopdf. Use the static method findExecutable() if necessary.
      */
+    @Deprecated
     public WrapperConfig() {
         logger.debug("Initialized with default configurations.");
         setWkhtmltopdfCommand(findExecutable());
@@ -35,6 +39,7 @@ public class WrapperConfig {
 
     /**
      * Initialize the configuration based on a provided wkhtmltopdf command to be used
+     *
      * @param wkhtmltopdfCommand the wkhtmltopdf command
      */
     public WrapperConfig(String wkhtmltopdfCommand) {
@@ -44,6 +49,7 @@ public class WrapperConfig {
     /**
      * Gets the wkhtmltopdf command to be used while calling wkhtmltopdf
      * It's default is 'wkhtmltopdf'
+     *
      * @return the wkhtmltopdf command
      */
     public String getWkhtmltopdfCommand() {
@@ -52,6 +58,7 @@ public class WrapperConfig {
 
     /**
      * Sets the configuration based on a provided wkhtmltopdf command to be used
+     *
      * @param wkhtmltopdfCommand the wkhtmltopdf command
      */
     public void setWkhtmltopdfCommand(String wkhtmltopdfCommand) {
@@ -63,7 +70,7 @@ public class WrapperConfig {
      *
      * @return the wkhtmltopdf command according to the OS
      */
-    public String findExecutable() {
+    public static String findExecutable() {
         try {
             String osname = System.getProperty("os.name").toLowerCase();
 
@@ -79,18 +86,16 @@ public class WrapperConfig {
                         "Verify its installation or initialize wrapper configurations with correct path/to/wkhtmltopdf");
 
             logger.debug("Wkhtmltopdf command found in classpath: {}", text);
-            setWkhtmltopdfCommand(text);
-        } catch (InterruptedException e) {
-            logger.error("Fatal:",e);
-        } catch (IOException e) {
-            logger.error("Fatal:",e);
+            return text;
+        } catch (InterruptedException | IOException e) {
+            logger.error("Fatal:", e);
+            throw new WrapperConfigException("Failed while getting wkhtmltopdf executable.", e);
         }
-
-        return getWkhtmltopdfCommand();
     }
 
     /**
      * Verify whether the Xvfb support is enabled and configured
+     *
      * @return status of Xvfb configuration
      */
     public boolean isXvfbEnabled() {
@@ -99,6 +104,7 @@ public class WrapperConfig {
 
     /**
      * Gets the Xvfb configuration
+     *
      * @return the Xvfb configuration
      */
     public XvfbConfig getXvfbConfig() {
@@ -107,6 +113,7 @@ public class WrapperConfig {
 
     /**
      * Sets the Xvfb configuration
+     *
      * @param xvfbConfig the Xvfb configuration
      */
     public void setXvfbConfig(XvfbConfig xvfbConfig) {
