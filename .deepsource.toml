@@ -1,0 +1,7 @@
+version = 1
+
+test_patterns = ["src/test/**"]
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
