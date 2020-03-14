@@ -25,35 +25,8 @@ public class Param {
         return key;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    // This is kept for backwards compatibility it will
-    // only return the first arg if it exists
-    @Deprecated
-    public String getValue() {
-        if (values.size() > 0) {
-            return values.get(0);
-        }
-        return null;
-    }
-
     public List<String> getValues() {
         return values;
-    }
-
-    @Deprecated
-    public void setValue(String value) {
-        if (values.isEmpty()) {
-            values.add(value);
-        } else {
-            values.set(0, value);
-        }
-    }
-
-    public void setValues(List<String> values) {
-        this.values = values;
     }
 
     @Override
