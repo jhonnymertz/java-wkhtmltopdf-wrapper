@@ -1,5 +1,6 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFExportException;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.Page;
@@ -22,11 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Represents a Pdf file
@@ -127,9 +124,9 @@ public class Pdf {
 
     /**
      * wkhtmltopdf often returns 1 to indicate some assets can't be found,
-     *  this can occur for protocol less links or in other cases. Sometimes you
-     *  may want to reject these with an exception which is the default, but in other
-     *  cases the PDF is fine for your needs.  Call this method allow return values of 1.
+     * this can occur for protocol less links or in other cases. Sometimes you
+     * may want to reject these with an exception which is the default, but in other
+     * cases the PDF is fine for your needs.  Call this method allow return values of 1.
      */
     public void setAllowMissingAssets() {
         if (!successValues.contains(1)) {
@@ -145,7 +142,7 @@ public class Pdf {
      * In standard process returns 0 means "ok" and any other value is an error.  However, wkhtmltopdf
      * uses the return value to also return warning information which you may decide to ignore (@see setAllowMissingAssets)
      *
-     * @param successValues  The full list of process return values you will accept as a 'success'.
+     * @param successValues The full list of process return values you will accept as a 'success'.
      */
     public void setSuccessValues(List<Integer> successValues) {
         this.successValues = successValues;
@@ -154,6 +151,7 @@ public class Pdf {
     /**
      * Sets the temporary folder to store files during the process
      * Default is provided by #File.createTempFile()
+     *
      * @param tempDirectory
      */
     public void setTempDirectory(File tempDirectory) {
@@ -162,6 +160,7 @@ public class Pdf {
 
     /**
      * Executes the wkhtmltopdf into standard out and captures the results.
+     *
      * @param path The path to the file where the PDF will be saved.
      * @return
      * @throws IOException
@@ -176,12 +175,13 @@ public class Pdf {
 
     /**
      * Executes the wkhtmltopdf saving the results directly to the specified file path.
+     *
      * @param path The path to the file where the PDF will be saved.
      * @return
      * @throws IOException
      * @throws InterruptedException
      */
-    public File saveAsDirect(String path)throws IOException, InterruptedException  {
+    public File saveAsDirect(String path) throws IOException, InterruptedException {
         File file = new File(path);
         outputFilename = file.getAbsolutePath();
         getPDF();
@@ -202,7 +202,7 @@ public class Pdf {
 
             process.waitFor();
 
-            if (!successValues.contains( process.exitValue() )) {
+            if (!successValues.contains(process.exitValue())) {
                 byte[] errorStream = getFuture(outputStreamToByteArray);
                 logger.error("Error while generating pdf: {}", new String(errorStream));
                 throw new PDFExportException(command, process.exitValue(), errorStream, getFuture(inputStreamToByteArray));
@@ -239,6 +239,8 @@ public class Pdf {
             if (page.getType().equals(PageType.htmlAsString)) {
                 //htmlAsString pages are first store into a temp file, then the location is passed as parameter to
                 // wkhtmltopdf, this is a workaround to avoid huge commands
+                if (page.getFilePath() != null)
+                    Files.deleteIfExists(Paths.get(page.getFilePath()));
                 File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html", tempDirectory);
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
                 page.setFilePath(temp.getAbsolutePath());
@@ -247,7 +249,7 @@ public class Pdf {
                 commandLine.add(page.getSource());
             }
         }
-        commandLine.add( (null != outputFilename) ? outputFilename : STDINOUT);
+        commandLine.add((null != outputFilename) ? outputFilename : STDINOUT);
         logger.debug("Command generated: {}", commandLine.toString());
         return commandLine.toArray(new String[commandLine.size()]);
     }
@@ -268,6 +270,9 @@ public class Pdf {
         }
     }
 
+    /**
+     * CLeans up temporary files used to generate the wkhtmltopdf command
+     */
     private void cleanTempFiles() {
         logger.debug("Cleaning up temporary files...");
         for (Page page : pages) {
@@ -283,7 +288,23 @@ public class Pdf {
     }
 
     /**
+     * Cleans up all the files generated by the library.
+     */
+    public void cleanAllTempFiles() {
+        logger.debug("Cleaning up temporary files...");
+        final File folder = new File(System.getProperty("java.io.tmpdir"));
+        final File[] files = folder.listFiles(new FilenameFilterConfig());
+        for (final File file : files) {
+            if (!file.delete()) {
+                logger.warn("Couldn't delete temp file " + file.getAbsolutePath());
+            }
+        }
+        logger.debug("{} temporary files removed.", files.length);
+    }
+
+    /**
      * Gets the final wkhtmltopdf command as string
+     *
      * @return the generated command from params
      * @throws IOException
      */

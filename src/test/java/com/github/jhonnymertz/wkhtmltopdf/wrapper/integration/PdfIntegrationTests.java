@@ -22,8 +22,8 @@ public class PdfIntegrationTests {
         WrapperConfig wc = new WrapperConfig();
         //see if executable is installed
         try {
-            wc.findExecutable();
-        }catch(RuntimeException ex){
+            WrapperConfig.findExecutable();
+        } catch (RuntimeException ex) {
             Assert.fail(ex.getMessage());
         }
     }
@@ -96,12 +96,12 @@ public class PdfIntegrationTests {
     }
 
     @Test
-    public void CleanUpTempFilesTest(){
+    public void CleanUpTempFilesTest() {
         Pdf pdf = new Pdf();
         pdf.addPageFromString("<!DOCTYPE html><head><title>title</title></head><body><p>TEST</p></body>");
         try {
             pdf.getPDF();
-        } catch(Exception ex){
+        } catch (Exception ex) {
             Assert.fail(ex.getMessage());
         }
     }

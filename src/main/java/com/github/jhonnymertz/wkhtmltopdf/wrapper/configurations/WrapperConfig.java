@@ -47,25 +47,6 @@ public class WrapperConfig {
     }
 
     /**
-     * Gets the wkhtmltopdf command to be used while calling wkhtmltopdf
-     * It's default is 'wkhtmltopdf'
-     *
-     * @return the wkhtmltopdf command
-     */
-    public String getWkhtmltopdfCommand() {
-        return wkhtmltopdfCommand;
-    }
-
-    /**
-     * Sets the configuration based on a provided wkhtmltopdf command to be used
-     *
-     * @param wkhtmltopdfCommand the wkhtmltopdf command
-     */
-    public void setWkhtmltopdfCommand(String wkhtmltopdfCommand) {
-        this.wkhtmltopdfCommand = wkhtmltopdfCommand;
-    }
-
-    /**
      * Attempts to find the `wkhtmltopdf` executable in the system path.
      *
      * @return the wkhtmltopdf command according to the OS
@@ -91,6 +72,25 @@ public class WrapperConfig {
             logger.error("Fatal:", e);
             throw new WrapperConfigException("Failed while getting wkhtmltopdf executable.", e);
         }
+    }
+
+    /**
+     * Gets the wkhtmltopdf command to be used while calling wkhtmltopdf
+     * It's default is 'wkhtmltopdf'
+     *
+     * @return the wkhtmltopdf command
+     */
+    public String getWkhtmltopdfCommand() {
+        return wkhtmltopdfCommand;
+    }
+
+    /**
+     * Sets the configuration based on a provided wkhtmltopdf command to be used
+     *
+     * @param wkhtmltopdfCommand the wkhtmltopdf command
+     */
+    public void setWkhtmltopdfCommand(String wkhtmltopdfCommand) {
+        this.wkhtmltopdfCommand = wkhtmltopdfCommand;
     }
 
     /**

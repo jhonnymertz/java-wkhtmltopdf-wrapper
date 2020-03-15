@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class XvfbConfig {
 
-    private String command;
     private final Params params = new Params();
+    private String command;
 
     public XvfbConfig() {
         this("xvfb-run");
