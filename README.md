@@ -16,7 +16,7 @@ If you are using Gradle/Maven, see example below:
 In your `build.gradle`:
 ```groovy
 dependencies {
-    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.11-RELEASE'
+    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.12-RELEASE'
 }
 ```
 
