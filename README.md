@@ -97,6 +97,8 @@ Known issues
 **Output of wkhtmltopdf is being added to resulting pdf** ([Issue #19](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/issues/19))
 - Starting from 1.1.10-RELEASE version, there is a method `saveAsDirect(String path)`, which executes wkhtmltopdf passing the `path` as output for wkhtmltopdf, instead of the standard input `-`. This saves the results directly to the specified file `path`.
 
+**Because this library relies on `wkhtmltopdf`, it does not support concurrent PDF generations.**
+
 License
 ------------
 This project is available under MIT Licence.
