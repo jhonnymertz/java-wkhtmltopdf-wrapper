@@ -1,9 +1,11 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.unit;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +27,11 @@ public class PdfTests {
         pdf = new Pdf(wc);
     }
 
+    @After
+    public void cleanUp() {
+        pdf.cleanAllTempFiles();
+    }
+
     @Test
     public void testParams() throws Exception {
         pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
@@ -33,7 +40,29 @@ public class PdfTests {
     }
 
     @Test
-    public void testTempDirectory() throws IOException {
+    public void testUniqueTempFileGenerationDirectory() throws IOException {
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
+        pdf.getCommand();
+        pdf.getCommand();
+        final File dir = new File(System.getProperty("java.io.tmpdir"));
+        File[] files = dir.listFiles(new FilenameFilterConfig());
+        Assert.assertEquals(1, files.length);
+    }
+
+    @Test
+    public void testTempDirectoryCleanup() throws IOException {
+        pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
+        pdf.getCommand();
+        final File dir = new File(System.getProperty("java.io.tmpdir"));
+        File[] files = dir.listFiles(new FilenameFilterConfig());
+        Assert.assertEquals(1, files.length);
+        pdf.cleanAllTempFiles();
+        files = dir.listFiles(new FilenameFilterConfig());
+        Assert.assertEquals(0, files.length);
+    }
+
+    @Test
+    public void testCustomTempDirectory() throws IOException {
         File f = File.createTempFile("java-wrapper-wkhtmltopdf-test", ".html");
         pdf.setTempDirectory(new File(f.getParent()));
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");

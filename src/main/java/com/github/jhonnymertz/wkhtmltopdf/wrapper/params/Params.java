@@ -1,10 +1,11 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.params;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 
 public class Params {
 
@@ -16,7 +17,7 @@ public class Params {
 
     public void add(Param param, Param... params) {
         this.params.add(param);
-        this.params.addAll( Arrays.asList( params ) );
+        this.params.addAll(Arrays.asList(params));
     }
 
     public List<String> getParamsAsStringList() {
@@ -37,7 +38,7 @@ public class Params {
 
     @Override
     public String toString() {
-      return StringUtils.join(params, "");
+        return StringUtils.join(params, "");
     }
 
 }
