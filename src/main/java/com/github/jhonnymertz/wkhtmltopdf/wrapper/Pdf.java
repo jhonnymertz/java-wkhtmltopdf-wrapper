@@ -58,6 +58,11 @@ public class Pdf {
 
     private List<Integer> successValues = new ArrayList<Integer>(Arrays.asList(0));
 
+    @Deprecated
+    /**
+     * Default constructor
+     * @deprecated Use the constructor with the WrapperConfig definition
+     */
     public Pdf() {
         this(new WrapperConfig());
     }
