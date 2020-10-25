@@ -26,7 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
- * Represents a Pdf file
+ * Represents a Pdf file and wraps up the wkhtmltopdf processing
  */
 public class Pdf {
 
@@ -50,6 +50,8 @@ public class Pdf {
     private int timeout = 10;
 
     private File tempDirectory;
+
+    private static String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
 
     private String outputFilename = null;
 
@@ -177,9 +179,9 @@ public class Pdf {
      * Executes the wkhtmltopdf saving the results directly to the specified file path.
      *
      * @param path The path to the file where the PDF will be saved.
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
+     * @return the pdf file saved
+     * @throws IOException when not able to save the file
+     * @throws InterruptedException when the PDF generation process got interrupted
      */
     public File saveAsDirect(String path) throws IOException, InterruptedException {
         File file = new File(path);
@@ -188,6 +190,14 @@ public class Pdf {
         return file;
     }
 
+    /**
+     * Generates a PDF file as byte array from the wkhtmltopdf output
+     *
+     * @return the PDF file as a byte array
+     * @throws IOException when not able to save the file
+     * @throws InterruptedException when the PDF generation process got interrupted
+     * @throws PDFExportException when the wkhtmltopdf process fails
+     */
     public byte[] getPDF() throws IOException, InterruptedException, PDFExportException {
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -219,6 +229,15 @@ public class Pdf {
         }
     }
 
+    /**
+     * Get command as array string
+     *
+     * Note: htmlAsString pages are first store into a temp file, then the location is used in the wkhtmltopdf command
+     * this is a workaround to avoid huge commands
+     *
+     * @return the wkhtmltopdf command as string array
+     * @throws IOException when not able to save temporary files from htmlAsString
+     */
     protected String[] getCommandAsArray() throws IOException {
         List<String> commandLine = new ArrayList<String>();
 
@@ -241,7 +260,7 @@ public class Pdf {
                 // wkhtmltopdf, this is a workaround to avoid huge commands
                 if (page.getFilePath() != null)
                     Files.deleteIfExists(Paths.get(page.getFilePath()));
-                File temp = File.createTempFile("java-wkhtmltopdf-wrapper" + UUID.randomUUID().toString(), ".html", tempDirectory);
+                File temp = File.createTempFile(TEMPORARY_FILE_PREFIX + UUID.randomUUID().toString(), ".html", tempDirectory);
                 FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
                 page.setFilePath(temp.getAbsolutePath());
                 commandLine.add(temp.getAbsolutePath());
@@ -306,7 +325,7 @@ public class Pdf {
      * Gets the final wkhtmltopdf command as string
      *
      * @return the generated command from params
-     * @throws IOException
+     * @throws IOException when not able to save temporary files from htmlAsString
      */
     public String getCommand() throws IOException {
         return StringUtils.join(getCommandAsArray(), " ");

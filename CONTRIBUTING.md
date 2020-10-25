@@ -5,6 +5,6 @@ Requirements
 Running tests
 ------------
 
-This repo has two kinds of tests: integration and unit test.
+This repo has two kinds of tests: integration (dependent on `wkhtmltopdf`) and unit tests.
 
-Use `mvn test -B` to run only the unit tests.
+By default, `mvn clean install` runs all the tests. Use `mvn test -B` to run only the unit tests.
