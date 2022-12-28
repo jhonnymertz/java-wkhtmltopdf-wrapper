@@ -29,6 +29,27 @@ public class PdfIntegrationTests {
     }
 
     @Test
+    public void getDefaultWkhtmltopdfCommandAsArray() {
+        String installedCommand = WrapperConfig.findExecutable();
+
+        WrapperConfig wc = new WrapperConfig();
+        String[] result = wc.getWkhtmltopdfCommandAsArray();
+
+        Assert.assertEquals(installedCommand, result[0]);
+    }
+
+    @Test
+    public void getCustomWkhtmltopdfCommandAsArray() {
+        WrapperConfig wc = new WrapperConfig("custom wkhtmltopdf command");
+
+        String[] result = wc.getWkhtmltopdfCommandAsArray();
+
+        Assert.assertEquals("custom", result[0]);
+        Assert.assertEquals("wkhtmltopdf", result[1]);
+        Assert.assertEquals("command", result[2]);
+    }
+
+    @Test
     public void testPdfFromStringTo() throws Exception {
 
         // GIVEN a html template containing special characters that java stores in utf-16 internally

@@ -245,7 +245,7 @@ public class Pdf {
             commandLine.addAll(wrapperConfig.getXvfbConfig().getCommandLine());
         }
 
-        commandLine.add(wrapperConfig.getWkhtmltopdfCommand());
+        commandLine.addAll(Arrays.asList(wrapperConfig.getWkhtmltopdfCommandAsArray()));
 
         commandLine.addAll(params.getParamsAsStringList());
 
