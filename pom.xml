@@ -105,7 +105,7 @@
                     <!-- Show 100% of the lines from the stack trace (doesn't work) -->
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
-                <version>2.22.1</version>
+                <version>2.22.2</version>
                 <executions>
                     <execution>
                         <id>unit-tests</id>
