@@ -18,7 +18,7 @@ import static org.hamcrest.core.StringContains.containsString;
 public class PdfIntegrationTests {
 
     @Test
-    public void findExecutable() throws Exception {
+    public void findExecutable() {
         WrapperConfig wc = new WrapperConfig();
         //see if executable is installed
         try {
