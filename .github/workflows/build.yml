@@ -9,7 +9,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install wkthtmltopdf
-        run: sudo apt-get install xvfb libfontconfig wkhtmltopdf
+        run: |
+          # Uncomment the next line if you have installed wkhtmltopdf
+          # sudo apt remove wkhtmltopdf
+          cd ~
+          # Select an appropriate link for your system (32 or 64 bit) from the page https://wkhtmltopdf.org/downloads.html and past to the next line
+          wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb
+          tar xvf wkhtmltox*.tar.xz
+          sudo mv wkhtmltox/bin/wkhtmlto* /usr/bin
+          sudo apt-get install -y openssl build-essential libssl-dev libxrender-dev git-core libx11-dev libxext-dev libfontconfig1-dev libfreetype6-dev fontconfig
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
