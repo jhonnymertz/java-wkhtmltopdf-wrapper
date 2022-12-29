@@ -35,7 +35,7 @@ public class PdfIntegrationTests {
         WrapperConfig wc = new WrapperConfig();
         String[] result = wc.getWkhtmltopdfCommandAsArray();
 
-        Assert.assertEquals(installedCommand, result[0]);
+        Assert.assertArrayEquals(installedCommand.split(" "), result);
     }
 
     @Test
