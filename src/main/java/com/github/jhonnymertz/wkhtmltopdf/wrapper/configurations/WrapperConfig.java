@@ -75,13 +75,13 @@ public class WrapperConfig {
     }
 
     /**
-     * Gets the wkhtmltopdf command to be used while calling wkhtmltopdf
+     * Gets the wkhtmltopdf command as an array to be used while calling wkhtmltopdf
      * It's default is 'wkhtmltopdf'
      *
      * @return the wkhtmltopdf command
      */
-    public String getWkhtmltopdfCommand() {
-        return wkhtmltopdfCommand;
+    public String[] getWkhtmltopdfCommandAsArray() {
+        return wkhtmltopdfCommand.split(" ");
     }
 
     /**
