@@ -33,7 +33,12 @@ In your `pom.xml`:
 Usage and Examples
 ------------
 ```java
-Pdf pdf = new Pdf();
+// Attempt to find the wkhtmltopdf command from OS path
+String executable = WrapperConfig.findExecutable();
+
+// Initialize with the command wrapper
+// Customize the OS command to be called if needed
+Pdf pdf = new Pdf(new WrapperConfig(executable));
 
 pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
 pdf.addPageFromUrl("http://www.google.com");
@@ -45,6 +50,7 @@ pdf.addToc();
 // All options are passed as array, for example:
 pdf.addParam(new Param("--no-footer-line"), new Param("--header-html", "file:///header.html"));
 pdf.addParam(new Param("--enable-javascript"));
+pdf.addParam(new Param("--javascript-delay", "2000"));
 
 // Add styling for Table of Contents
 pdf.addTocParam(new Param("--xsl-style-sheet", "my_toc.xsl"));

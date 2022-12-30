@@ -19,7 +19,6 @@ public class PdfIntegrationTests {
 
     @Test
     public void findExecutable() {
-        WrapperConfig wc = new WrapperConfig();
         //see if executable is installed
         try {
             WrapperConfig.findExecutable();
@@ -139,6 +138,24 @@ public class PdfIntegrationTests {
         }
         Pdf pdf = wc != null ? new Pdf(wc) : new Pdf();
         pdf.addPageFromUrl("http://www.google.com");
+
+        pdf.saveAs("output.pdf");
+
+        // WHEN
+        byte[] pdfBytes = pdf.getPDF();
+        PDDocument pdDocument = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+        String pdfText = new PDFTextStripper().getText(pdDocument);
+
+        Assert.assertThat("document should be generated", pdfText, containsString("Google"));
+    }
+
+    @Test
+    public void testPdfWithLongParameters() throws Exception {
+        final String executable = WrapperConfig.findExecutable();
+        Pdf pdf = new Pdf(new WrapperConfig(executable));
+        pdf.addPageFromUrl("http://www.google.com");
+
+        pdf.addParam(new Param("--javascript-delay", "2000"));
 
         pdf.saveAs("output.pdf");
 
