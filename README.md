@@ -1,4 +1,4 @@
-Java WkHtmlToPdf Wrapper [![Build](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/actions/workflows/build.yml)
+Java WkHtmlToPdf Wrapper [![Build](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/actions/workflows/build.yml) [![Release](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/actions/workflows/publish.yml/badge.svg)](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/actions/workflows/publish.yml)
 =========
 
 A Java based wrapper for the [wkhtmltopdf](http://wkhtmltopdf.org/) command line tool. As the name implies, it uses WebKit to convert HTML documents to PDFs.
