@@ -14,16 +14,23 @@ jobs:
           sudo apt-get install -y xfonts-base xfonts-75dpi xvfb libfontconfig
           wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
           sudo dpkg -i wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-      - name: Set up Maven Central Repository
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Set up Apache Maven Central
+        uses: actions/setup-java@v1
+        with: # running setup-java again overwrites the settings.xml
+          java-version: 11
           server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-      - name: Publish package
-        run: mvn --batch-mode deploy
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Publish to Apache Maven Central
+        run: mvn -Prelease deploy
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}

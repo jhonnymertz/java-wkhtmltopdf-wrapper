@@ -16,4 +16,6 @@ Workflows are automated via Github Actions.
 
 In order to generate a new release:
 - Update the release version in pom.xml and README.md
-- Create a new release tag in github
+- Create a new release tag in github, this will trigger a github actions workflow
+
+After the Github Actions `publish` workflow finishes, the release must be [available at OSSRH](https://oss.sonatype.org/#welcome).
