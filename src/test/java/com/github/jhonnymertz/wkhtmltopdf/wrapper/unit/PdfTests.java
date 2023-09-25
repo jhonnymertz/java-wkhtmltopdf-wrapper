@@ -4,6 +4,7 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import org.junit.After;
 import org.junit.Assert;

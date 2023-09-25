@@ -1,6 +1,9 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.integration;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Cover;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
@@ -61,6 +64,25 @@ public class PdfIntegrationTests {
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
         Assert.assertThat("document should contain the creditorName", pdfText, containsString("Müller"));
+    }
+
+    @Test
+    public void testMultipleObjectsWithOptions() throws Exception {
+        final String executable = WrapperConfig.findExecutable();
+        WrapperConfig config = new WrapperConfig(executable);
+        Pdf pdf = new Pdf(config);
+        pdf.addGlobalParam( new Param( "--footer-font-size", "10" ) );
+        pdf.addGlobalParam( new Param( "--margin-bottom", "20" ) );
+        Cover coverPage = pdf.addCoverFromString("<html><head><meta charset=\"utf-8\"></head><h1>Cover Page</h1></html>");
+        TableOfContents toc = pdf.addToc();
+        toc.addParam(new Param("--disable-dotted-lines"));
+        Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"><style>h2 { page-break-before: always; }</style></head><h2>Heading 1</h2>Blah blah blah<h2>Heading 2</h2>This is some test text</html>");
+        mainPage.addParam(new Param("--footer-center", "Page [page] of [topage]" ));
+        try {
+            pdf.getPDF();
+        } catch (Exception ex) {
+            Assert.fail(ex.getMessage());
+        }
     }
 
     @Test
