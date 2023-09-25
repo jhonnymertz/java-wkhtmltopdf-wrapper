@@ -1,9 +1,9 @@
-package com.github.jhonnymertz.wkhtmltopdf.wrapper.page;
+package com.github.jhonnymertz.wkhtmltopdf.wrapper.objects;
 
 /**
- * The Page type accepted by wkhtmltopdf
+ * The source type accepted by wkhtmltopdf
  */
-public enum PageType {
+public enum SourceType {
 
     /**
      * Html as string

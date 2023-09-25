@@ -34,7 +34,7 @@ public class PdfTests {
 
     @Test
     public void testParams() throws Exception {
-        pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
+        pdf.addGlobalParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
         pdf.addPageFromUrl("http://www.google.com");
         Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
     }
@@ -89,8 +89,8 @@ public class PdfTests {
 
     @Test
     public void testTocParams() throws IOException {
-        pdf.addToc();
-        pdf.addTocParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
+        TableOfContents toc = pdf.addToc();
+        toc.addParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
         pdf.addPageFromUrl("http://www.google.com");
         Assert.assertThat("command params should contain toc params", pdf.getCommand(), containsString("--test-param2 test-value"));
     }

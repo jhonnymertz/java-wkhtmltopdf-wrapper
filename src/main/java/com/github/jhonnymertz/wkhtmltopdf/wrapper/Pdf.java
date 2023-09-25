@@ -3,8 +3,11 @@ package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFExportException;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.Page;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.page.PageType;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.BaseObject;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Cover;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.SourceType;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.io.FileUtils;
@@ -22,7 +25,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
@@ -36,22 +38,18 @@ public class Pdf {
 
     private final WrapperConfig wrapperConfig;
 
-    private final Params params;
+    private final Params globalParams;
 
-    private final Params tocParams;
-
-    private final List<Page> pages;
-
-    private boolean hasToc = false;
+    private final List<BaseObject> objects;
 
     /**
      * Timeout to wait while generating a PDF, in seconds
      */
     private int timeout = 10;
 
-    private File tempDirectory;
+    public File tempDirectory;
 
-    private static String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
+    public static String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
 
     private String outputFilename = null;
 
@@ -68,9 +66,8 @@ public class Pdf {
 
     public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
-        this.params = new Params();
-        this.tocParams = new Params();
-        this.pages = new ArrayList<Page>();
+        this.globalParams = new Params();
+        this.objects = new ArrayList<BaseObject>();
         logger.info("Initialized with {}", wrapperConfig);
     }
 
@@ -80,41 +77,77 @@ public class Pdf {
      * @deprecated Use the specific type method to a better semantic
      */
     @Deprecated
-    public void addPage(String source, PageType type) {
-        this.pages.add(new Page(source, type));
+    public Page addPage(String source, SourceType type) {
+        Page page = new Page(source, type);
+        this.objects.add(page);
+        return page;
+    }
+
+     /**
+     * Add a cover from an URL to the pdf
+     */
+    public Cover addCoverFromUrl(String source) {
+        Cover cover = new Cover(source, SourceType.url);
+        this.objects.add(cover);
+        return cover;
+    }
+
+    /**
+     * Add a cover from a HTML-based string to the pdf
+     */
+    public Cover addCoverFromString(String source) {
+        Cover cover = new Cover(source, SourceType.htmlAsString);
+        this.objects.add(cover);
+        return cover;
+    }
+
+    /**
+     * Add a cover from a file to the pdf
+     */
+    public Cover addCoverFromFile(String source) {
+        Cover cover = new Cover(source, SourceType.file);
+        this.objects.add(cover);
+        return cover;
     }
 
     /**
      * Add a page from an URL to the pdf
      */
-    public void addPageFromUrl(String source) {
-        this.pages.add(new Page(source, PageType.url));
+    public Page addPageFromUrl(String source) {
+        Page page = new Page(source, SourceType.url);
+        this.objects.add(page);
+        return page;
     }
 
     /**
      * Add a page from a HTML-based string to the pdf
      */
-    public void addPageFromString(String source) {
-        this.pages.add(new Page(source, PageType.htmlAsString));
+    public Page addPageFromString(String source) {
+        Page page = new Page(source, SourceType.htmlAsString);
+        this.objects.add(page);
+        return page;
     }
 
     /**
      * Add a page from a file to the pdf
      */
-    public void addPageFromFile(String source) {
-        this.pages.add(new Page(source, PageType.file));
+    public Page addPageFromFile(String source) {
+        Page page = new Page(source, SourceType.file);
+        this.objects.add(page);
+        return page;
     }
 
-    public void addToc() {
-        this.hasToc = true;
+    /**
+     * Add a toc
+     */
+    public TableOfContents addToc() {
+        TableOfContents toc = new TableOfContents();
+        this.objects.add(toc);
+        return toc;
     }
 
-    public void addParam(Param param, Param... params) {
-        this.params.add(param, params);
-    }
-
-    public void addTocParam(Param param, Param... params) {
-        this.tocParams.add(param, params);
+    public void addGlobalParam(Param param, Param... params) {
+        this.globalParams.add(param, params);
     }
 
     /**
@@ -247,27 +280,12 @@ public class Pdf {
 
         commandLine.addAll(Arrays.asList(wrapperConfig.getWkhtmltopdfCommandAsArray()));
 
-        commandLine.addAll(params.getParamsAsStringList());
+        commandLine.addAll(globalParams.getParamsAsStringList());
 
-        if (hasToc) {
-            commandLine.add("toc");
-            commandLine.addAll(tocParams.getParamsAsStringList());
+        for (BaseObject object : objects) {
+            commandLine.addAll(object.getCommandAsList(this));
         }
 
-        for (Page page : pages) {
-            if (page.getType().equals(PageType.htmlAsString)) {
-                //htmlAsString pages are first store into a temp file, then the location is passed as parameter to
-                // wkhtmltopdf, this is a workaround to avoid huge commands
-                if (page.getFilePath() != null)
-                    Files.deleteIfExists(Paths.get(page.getFilePath()));
-                File temp = File.createTempFile(TEMPORARY_FILE_PREFIX + UUID.randomUUID().toString(), ".html", tempDirectory);
-                FileUtils.writeStringToFile(temp, page.getSource(), "UTF-8");
-                page.setFilePath(temp.getAbsolutePath());
-                commandLine.add(temp.getAbsolutePath());
-            } else {
-                commandLine.add(page.getSource());
-            }
-        }
         commandLine.add((null != outputFilename) ? outputFilename : STDINOUT);
         logger.debug("Command generated: {}", commandLine.toString());
         return commandLine.toArray(new String[commandLine.size()]);
@@ -294,13 +312,16 @@ public class Pdf {
      */
     private void cleanTempFiles() {
         logger.debug("Cleaning up temporary files...");
-        for (Page page : pages) {
-            if (page.getType().equals(PageType.htmlAsString)) {
-                try {
-                    Path p = Paths.get(page.getFilePath());
-                    logger.debug("Delete temp file at: " + page.getFilePath() + " " + Files.deleteIfExists(p));
-                } catch (IOException ex) {
-                    logger.warn("Couldn't delete temp file " + page.getFilePath());
+        for (BaseObject object : objects) {
+            if(object instanceof Page) {
+                Page page = (Page) object;
+                if (page.getType().equals(SourceType.htmlAsString)) {
+                    try {
+                        Path p = Paths.get(page.getFilePath());
+                        logger.debug("Delete temp file at: " + page.getFilePath() + " " + Files.deleteIfExists(p));
+                    } catch (IOException ex) {
+                        logger.warn("Couldn't delete temp file " + page.getFilePath());
+                    }
                 }
             }
         }

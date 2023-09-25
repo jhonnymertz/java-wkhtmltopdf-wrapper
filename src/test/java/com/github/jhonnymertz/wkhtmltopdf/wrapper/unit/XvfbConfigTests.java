@@ -33,6 +33,6 @@ public class XvfbConfigTests {
         wc.setXvfbConfig(xvfbConfig);
         Pdf pdf = new Pdf(wc);
         pdf.addPageFromUrl("http://www.google.com");
-        Assert.assertThat("command params should contain xvfb params", pdf.getCommand(), containsString("xvfb-run --test-param --test-param2 test-value wkhtmltopdf http://www.google.com -"));
+        Assert.assertThat("command params should contain xvfb params", pdf.getCommand(), containsString("xvfb-run --test-param --test-param2 test-value wkhtmltopdf page http://www.google.com -"));
     }
 }

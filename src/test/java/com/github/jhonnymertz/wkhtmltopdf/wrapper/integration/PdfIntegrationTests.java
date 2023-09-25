@@ -155,7 +155,7 @@ public class PdfIntegrationTests {
         Pdf pdf = new Pdf(new WrapperConfig(executable));
         pdf.addPageFromUrl("http://www.google.com");
 
-        pdf.addParam(new Param("--javascript-delay", "2000"));
+        pdf.addGlobalParam(new Param("--javascript-delay", "2000"));
 
         pdf.saveAs("output.pdf");
 
