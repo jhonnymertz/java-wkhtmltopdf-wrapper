@@ -71,8 +71,8 @@ public class PdfIntegrationTests {
         final String executable = WrapperConfig.findExecutable();
         WrapperConfig config = new WrapperConfig(executable);
         Pdf pdf = new Pdf(config);
-        pdf.addGlobalParam( new Param( "--footer-font-size", "10" ) );
-        pdf.addGlobalParam( new Param( "--margin-bottom", "20" ) );
+        pdf.addParam( new Param( "--footer-font-size", "10" ) );
+        pdf.addParam( new Param( "--margin-bottom", "20" ) );
         Cover coverPage = pdf.addCoverFromString("<html><head><meta charset=\"utf-8\"></head><h1>Cover Page</h1></html>");
         TableOfContents toc = pdf.addToc();
         toc.addParam(new Param("--disable-dotted-lines"));
@@ -177,7 +177,7 @@ public class PdfIntegrationTests {
         Pdf pdf = new Pdf(new WrapperConfig(executable));
         pdf.addPageFromUrl("http://www.google.com");
 
-        pdf.addGlobalParam(new Param("--javascript-delay", "2000"));
+        pdf.addParam(new Param("--javascript-delay", "2000"));
 
         pdf.saveAs("output.pdf");
 

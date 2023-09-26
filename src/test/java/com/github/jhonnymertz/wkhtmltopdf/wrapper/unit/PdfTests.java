@@ -4,7 +4,6 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,7 +34,7 @@ public class PdfTests {
 
     @Test
     public void testParams() throws Exception {
-        pdf.addGlobalParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
+        pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
         pdf.addPageFromUrl("http://www.google.com");
         Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
     }
@@ -90,8 +89,8 @@ public class PdfTests {
 
     @Test
     public void testTocParams() throws IOException {
-        TableOfContents toc = pdf.addToc();
-        toc.addParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
+        pdf.addToc();
+        pdf.addTocParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
         pdf.addPageFromUrl("http://www.google.com");
         Assert.assertThat("command params should contain toc params", pdf.getCommand(), containsString("--test-param2 test-value"));
     }

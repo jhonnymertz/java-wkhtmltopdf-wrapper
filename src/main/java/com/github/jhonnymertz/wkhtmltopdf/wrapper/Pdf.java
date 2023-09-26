@@ -38,9 +38,11 @@ public class Pdf {
 
     private final WrapperConfig wrapperConfig;
 
-    private final Params globalParams;
+    private final Params params;
 
     private final List<BaseObject> objects;
+
+    private TableOfContents lastToc;
 
     /**
      * Timeout to wait while generating a PDF, in seconds
@@ -66,7 +68,7 @@ public class Pdf {
 
     public Pdf(WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
-        this.globalParams = new Params();
+        this.params = new Params();
         this.objects = new ArrayList<BaseObject>();
         logger.info("Initialized with {}", wrapperConfig);
     }
@@ -143,11 +145,19 @@ public class Pdf {
     public TableOfContents addToc() {
         TableOfContents toc = new TableOfContents();
         this.objects.add(toc);
+        this.lastToc = toc;
         return toc;
     }
 
-    public void addGlobalParam(Param param, Param... params) {
-        this.globalParams.add(param, params);
+    public void addParam(Param param, Param... params) {
+        this.params.add(param, params);
+    }
+
+    /**
+     * Adds a param to the most recently added toc
+     */
+    public void addTocParam(Param param, Param... params) {
+        this.lastToc.addParam(param, params);
     }
 
     /**
@@ -280,8 +290,10 @@ public class Pdf {
 
         commandLine.addAll(Arrays.asList(wrapperConfig.getWkhtmltopdfCommandAsArray()));
 
-        commandLine.addAll(globalParams.getParamsAsStringList());
+        // Global options
+        commandLine.addAll(params.getParamsAsStringList());
 
+        // Object and object options
         for (BaseObject object : objects) {
             commandLine.addAll(object.getCommandAsList(this));
         }
