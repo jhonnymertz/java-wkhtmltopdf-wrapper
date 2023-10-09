@@ -16,7 +16,7 @@ If you are using Gradle/Maven, see example below:
 In your `build.gradle`:
 ```groovy
 dependencies {
-    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.1.15-RELEASE'
+    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.2.0-RELEASE'
 }
 ```
 
@@ -26,7 +26,7 @@ In your `pom.xml`:
 <dependency>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
-    <version>1.1.15-RELEASE</version>
+    <version>1.2.0-RELEASE</version>
 </dependency>
 ```
 
@@ -40,22 +40,86 @@ String executable = WrapperConfig.findExecutable();
 // Customize the OS command to be called if needed
 Pdf pdf = new Pdf(new WrapperConfig(executable));
 
-pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
-pdf.addPageFromUrl("http://www.google.com");
-
-// Add a Table of Contents
-pdf.addToc();
-
-// The `wkhtmltopdf` shell command accepts different types of options such as global, page, headers and footers, and toc. Please see `wkhtmltopdf -H` for a full explanation.
-// All options are passed as array, for example:
+// Add global params:
 pdf.addParam(new Param("--no-footer-line"), new Param("--header-html", "file:///header.html"));
 pdf.addParam(new Param("--enable-javascript"));
 pdf.addParam(new Param("--javascript-delay", "2000"));
 
-// Add styling for Table of Contents
-pdf.addTocParam(new Param("--xsl-style-sheet", "my_toc.xsl"));
+// Add pages
+Page page1 = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
+Page page2 = pdf.addPageFromUrl("http://www.google.com");
+
+// Add per-page params
+page1.addParam(new Param("--footer-center", "Page1Footer"));
+page1.addParam(new Param("--exclude-from-outline"));
+page2.addParam(new Param( "--header-center", "Page2HeaderOverride"));
+
+// Add a Table of Contents and ToC params
+TableOfContents toc = pdf.addToc();
+toc.addParam(new Param("--footer-center", "TocFooter"));
+toc.addParam(new Param("--xsl-style-sheet", "my_toc.xsl"));
 
 // Save the PDF
+pdf.saveAs("output.pdf");
+```
+
+### Global params vs. per-object params
+
+`wkhtmltopdf` accepts different types of options such as global, page, headers and footers, and toc. Please see `wkhtmltopdf -H` for a full explanation. The library allows setting params globally and per-object, as follows.
+
+```java
+final Pdf pdf = new Pdf(new WrapperConfig(WrapperConfig.findExecutable()));
+
+// Adding global params
+pdf.addParam(new Param("--header-center", "GlobalHeader"));
+
+// Adding per-object params
+TableOfContents toc = pdf.addToc();
+toc.addParam(new Param("--footer-center", "TocFooter"));
+
+Page page1 = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page1</h1></html>");
+page1.addParam(new Param("--footer-center", "Page1Footer"));
+page1.addParam(new Param("--exclude-from-outline")); // removes from toc
+
+Page page2 = pdf.addPageFromUrl("http://www.google.com");
+page2.addParam(new Param( "--header-center", "Page2HeaderOverride")); // override global header
+```
+
+### Page/object ordering
+
+The list of pages/objects in the document appear as the order in which pages/objects were added to the main `pdf`:
+
+```java
+final Pdf pdf = new Pdf(new WrapperConfig(WrapperConfig.findExecutable()));
+pdf.addCoverFromString("<html><head><meta charset=\"utf-8\"></head><h1>CoverPage</h1></html>");
+
+TableOfContents toc = pdf.addToc();
+toc.addParam(new Param("--toc-header-text", "TableOfContents"));
+
+Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Heading1</h2></html>");
+mainPage.addParam(new Param("--exclude-from-outline"));
+
+pdf.getPDF(); // generated with cover coming before toc and toc before the main page
+```
+
+#### ToC positioning
+
+By default, the ToC is always placed at the beginning of the document. You can change this by using the `setAlwaysPutTocFirst(false)`:
+
+```java
+final WrapperConfig config = new WrapperConfig(WrapperConfig.findExecutable());
+config.setAlwaysPutTocFirst(false);
+final Pdf pdf = new Pdf(config);
+
+pdf.addCoverFromString("<html><head><meta charset=\"utf-8\"></head><h1>CoverPage</h1></html>");
+
+TableOfContents toc = pdf.addToc();
+toc.addParam(new Param("--toc-header-text", "TableOfContents"));
+
+Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Heading1</h2></html>");
+mainPage.addParam(new Param("--exclude-from-outline"));
+        
+// Save the PDF with cover comes before toc and toc before the main page 
 pdf.saveAs("output.pdf");
 ```
 
@@ -65,7 +129,7 @@ pdf.saveAs("output.pdf");
 XvfbConfig xc = new XvfbConfig();
 xc.addParams(new Param("--auto-servernum"), new Param("--server-num=1"));
 
-WrapperConfig wc = new WrapperConfig();
+WrapperConfig wc = new WrapperConfig(WrapperConfig.findExecutable());
 wc.setXvfbConfig(xc);
 
 Pdf pdf = new Pdf(wc);
@@ -101,10 +165,6 @@ pdf.cleanAllTempFiles();
 This is not an official Wkhtmltopdf product
 ------------
 This library is not an official Wkhtmltopdf product. Support is available on a best-effort basis via github issue tracking. Pull requests are welcomed.
-
-Bugs
-------------
-- Tests are incomplete
 
 Known issues
 ------------

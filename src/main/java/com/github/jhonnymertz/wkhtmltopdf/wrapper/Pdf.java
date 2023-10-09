@@ -190,21 +190,23 @@ public class Pdf {
     }
 
     /**
-     * Add param.
+     * Adds a global param
      *
-     * @param param  the param
-     * @param params the params
+     * @param param  the global param
+     * @param params the global params
      */
     public void addParam(final Param param, final Param... params) {
         this.params.add(param, params);
     }
 
     /**
-     * Adds a param to the most recently added toc
+     * Adds a param to the most recently added toc. If more than one ToC is needed, make sure to use per-object params.
      *
      * @param param  the param
      * @param params the params
+     * @deprecated Use per-object params as this will add only to the last ToC
      */
+    @Deprecated
     public void addTocParam(final Param param, final Param... params) {
         this.lastToc.addParam(param, params);
     }
