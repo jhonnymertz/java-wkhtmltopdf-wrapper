@@ -63,6 +63,22 @@ toc.addParam(new Param("--xsl-style-sheet", "my_toc.xsl"));
 pdf.saveAs("output.pdf");
 ```
 
+### `wkhtmltopdf` location and automatic retrieval attempt
+
+Library provides a method to attempt to find the `wkhtmltopdf` executable from the OS path, or an exact location can be provided:
+
+```java
+// Attempt to find the wkhtmltopdf command from OS path
+String executable = WrapperConfig.findExecutable();
+
+// Exact custom location
+String executable = "/usr/local/bin/wkhtmltopdf";
+
+final Pdf pdf = new Pdf(new WrapperConfig(executable));
+```
+
+> Note: make sure the tool `wkhtmltopdf` is installed and in the OS path for the user currently running the Java application. Otherwise, library will not be able to find the `wkhtmltopdf`. To test if the command is visible, you may try `which wkhtmltopdf` (linux) or `where wkhtmltopdf` (windows) in the command line. 
+
 ### Global params vs. per-object params
 
 `wkhtmltopdf` accepts different types of options such as global, page, headers and footers, and toc. Please see `wkhtmltopdf -H` for a full explanation. The library allows setting params globally and per-object, as follows.
