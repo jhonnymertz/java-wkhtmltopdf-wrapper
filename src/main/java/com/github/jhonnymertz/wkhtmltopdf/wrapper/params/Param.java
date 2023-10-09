@@ -1,30 +1,53 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.params;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * The type Param.
+ */
 public class Param {
 
     private String key;
 
     // Some commands accept more than one value such as cookies and headers
-    private List<String> values = new ArrayList<String>();
+    private List<String> values = new ArrayList<>();
 
-    public Param(String key, String... valueArray) {
+    /**
+     * Instantiates a new Param.
+     *
+     * @param key        the key
+     * @param valueArray the value array
+     */
+    public Param(final String key, final String... valueArray) {
         this.key = key;
-        for (String value : valueArray) {
-            values.add(value);
-        }
+        Collections.addAll(values, valueArray);
     }
 
-    public Param(String key) {
+    /**
+     * Instantiates a new Param.
+     *
+     * @param key the key
+     */
+    public Param(final String key) {
         this(key, new String[0]);
     }
 
+    /**
+     * Gets key.
+     *
+     * @return the key
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     * Gets values.
+     *
+     * @return the values
+     */
     public List<String> getValues() {
         return values;
     }

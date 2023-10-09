@@ -7,21 +7,38 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * The type Params.
+ */
 public class Params {
 
     private Collection<Param> params;
 
+    /**
+     * Instantiates a new Params.
+     */
     public Params() {
-        this.params = new ArrayList<Param>();
+        this.params = new ArrayList<>();
     }
 
-    public void add(Param param, Param... params) {
+    /**
+     * Add.
+     *
+     * @param param  the param
+     * @param params the params
+     */
+    public void add(final Param param, final Param... params) {
         this.params.add(param);
         this.params.addAll(Arrays.asList(params));
     }
 
+    /**
+     * Gets params as string list.
+     *
+     * @return the params as string list
+     */
     public List<String> getParamsAsStringList() {
-        List<String> commandLine = new ArrayList<String>();
+        List<String> commandLine = new ArrayList<>();
 
         for (Param p : params) {
             commandLine.add(p.getKey());

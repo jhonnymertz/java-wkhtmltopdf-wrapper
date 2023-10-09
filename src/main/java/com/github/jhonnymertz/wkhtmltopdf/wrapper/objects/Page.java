@@ -13,12 +13,21 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 
+/**
+ * The type Page.
+ */
 public class Page extends BaseObject {
     private String source;
     private String filePath;
     private SourceType type;
 
-    public Page(String source, SourceType type) {
+    /**
+     * Instantiates a new Page.
+     *
+     * @param source the source
+     * @param type   the type
+     */
+    public Page(final String source, final SourceType type) {
         this.source = source;
         this.type = type;
     }
@@ -31,7 +40,7 @@ public class Page extends BaseObject {
     }
 
     @Override
-    public List<String> getCommandAsList(Pdf pdf) throws IOException
+    public List<String> getCommandAsList(final Pdf pdf) throws IOException
     {
         List<String> commands = new ArrayList<>();
         if(StringUtils.isNotBlank(objectIdentifier)){
@@ -61,27 +70,57 @@ public class Page extends BaseObject {
 
     }
 
+    /**
+     * Gets source.
+     *
+     * @return the source
+     */
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    /**
+     * Sets source.
+     *
+     * @param source the source
+     */
+    public void setSource(final String source) {
         this.source = source;
     }
 
+    /**
+     * Gets type.
+     *
+     * @return the type
+     */
     public SourceType getType() {
         return type;
     }
 
-    public void setType(SourceType type) {
+    /**
+     * Sets type.
+     *
+     * @param type the type
+     */
+    public void setType(final SourceType type) {
         this.type = type;
     }
 
+    /**
+     * Gets file path.
+     *
+     * @return the file path
+     */
     public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
+    /**
+     * Sets file path.
+     *
+     * @param filePath the file path
+     */
+    public void setFilePath(final String filePath) {
         this.filePath = filePath;
     }
 }

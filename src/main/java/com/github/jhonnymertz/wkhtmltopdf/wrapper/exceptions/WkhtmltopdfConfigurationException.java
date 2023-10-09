@@ -6,7 +6,12 @@ package com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions;
  */
 public class WkhtmltopdfConfigurationException extends RuntimeException {
 
-    public WkhtmltopdfConfigurationException(String s) {
+    /**
+     * Instantiates a new Wkhtmltopdf configuration exception.
+     *
+     * @param s the s
+     */
+    public WkhtmltopdfConfigurationException(final String s) {
         super(s);
     }
 

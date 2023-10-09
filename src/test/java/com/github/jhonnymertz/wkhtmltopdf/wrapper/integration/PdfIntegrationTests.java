@@ -1,13 +1,13 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.integration;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
-import org.apache.pdfbox.Loader;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.Test;
@@ -16,14 +16,14 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.Is.is;
 
 class PdfIntegrationTests {
 
@@ -74,7 +74,7 @@ class PdfIntegrationTests {
     }
 
     @Test
-    public void testMultipleObjectsOrder() throws Exception {
+    void testMultipleObjectsOrder() throws Exception {
         final String executable = WrapperConfig.findExecutable();
         WrapperConfig config = new WrapperConfig(executable);
         config.setAlwaysPutTocFirst(false);
@@ -87,7 +87,7 @@ class PdfIntegrationTests {
 
         Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Heading1</h2></html>");
         mainPage.addParam(new Param("--exclude-from-outline"));
-        
+
         byte[] pdfBytes = pdf.getPDF();
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
@@ -95,9 +95,9 @@ class PdfIntegrationTests {
         int indexOfCover = pdfText.indexOf("CoverPage");
         int indexOfToc = pdfText.indexOf("TableOfContents");
         int indexOfMainPage = pdfText.indexOf("Heading1");
-        
-        Assert.assertThat("document should have a cover page before the table of contents", indexOfCover < indexOfToc, is(true));
-        Assert.assertThat("document should have a table of contents before the main page", indexOfToc < indexOfMainPage, is(true));
+
+        assertThat("document should have a cover page before the table of contents", indexOfCover < indexOfToc, is(true));
+        assertThat("document should have a table of contents before the main page", indexOfToc < indexOfMainPage, is(true));
     }
 
     @Test
@@ -106,7 +106,7 @@ class PdfIntegrationTests {
         WrapperConfig config = new WrapperConfig(executable);
         Pdf pdf = new Pdf(config);
 
-        pdf.addParam( new Param( "--header-center", "GlobalHeader" ) );
+        pdf.addParam(new Param("--header-center", "GlobalHeader"));
 
         TableOfContents toc = pdf.addToc();
         toc.addParam(new Param("--footer-center", "TocFooter"));
@@ -116,8 +116,8 @@ class PdfIntegrationTests {
         page1.addParam(new Param("--exclude-from-outline")); // removes from toc
 
         Page page2 = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page2</h1></html>");
-        page2.addParam( new Param( "--header-center", "Page2HeaderOverride" ) ); // override global header
-        
+        page2.addParam(new Param("--header-center", "Page2HeaderOverride")); // override global header
+
         byte[] pdfBytes = pdf.getPDF();
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
@@ -125,14 +125,14 @@ class PdfIntegrationTests {
         int tocFooterCount = StringUtils.countMatches(pdfText, "TocFooter");
         int page1FooterCount = StringUtils.countMatches(pdfText, "Page1Footer");
 
-        Assert.assertThat("document doesn't contain correct number of global headers", 2, equalTo(globalHeaderCount));
-        Assert.assertThat("document doesn't contain correct number of toc footers", 1, equalTo(tocFooterCount));
-        Assert.assertThat("document doesn't contain correct number of page 1 footers", 1, equalTo(page1FooterCount));
+        assertThat("document doesn't contain correct number of global headers", 2, equalTo(globalHeaderCount));
+        assertThat("document doesn't contain correct number of toc footers", 1, equalTo(tocFooterCount));
+        assertThat("document doesn't contain correct number of page 1 footers", 1, equalTo(page1FooterCount));
 
-        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(pdfBytes))) {
-            String pdfTocPageText = getPdfTextForPage(document,1);
-            Assert.assertThat("document toc shouldn't contain page1", pdfTocPageText, not(containsString("Page1")));
-            Assert.assertThat("document toc is missing page2", pdfTocPageText, containsString("Page2"));
+        try (PDDocument document = Loader.loadPDF(pdfBytes)) {
+            String pdfTocPageText = getPdfTextForPage(document, 1);
+            assertThat("document toc shouldn't contain page1", pdfTocPageText, not(containsString("Page1")));
+            assertThat("document toc is missing page2", pdfTocPageText, containsString("Page2"));
         }
     }
 

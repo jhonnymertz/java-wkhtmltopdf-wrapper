@@ -1,10 +1,11 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.objects;
 
-public class TableOfContents extends BaseObject
-{
+/**
+ * The type Table of contents.
+ */
+public class TableOfContents extends BaseObject {
     @Override
-    public String SetObjectIdentifier()
-    {
+    public String SetObjectIdentifier() {
         return "toc";
     }
 }

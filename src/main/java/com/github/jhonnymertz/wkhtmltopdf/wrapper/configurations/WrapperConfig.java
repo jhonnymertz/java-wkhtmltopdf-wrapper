@@ -74,7 +74,7 @@ public class WrapperConfig {
 
             logger.debug("Wkhtmltopdf command found in classpath: {}", text);
             return text;
-        } catch (InterruptedException | IOException e) {
+        } catch (final InterruptedException | IOException e) {
             logger.error("Fatal:", e);
             throw new WrapperConfigException("Failed while getting wkhtmltopdf executable.", e);
         }
