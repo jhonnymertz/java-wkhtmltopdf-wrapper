@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 
@@ -25,14 +26,17 @@ public class Page extends BaseObject {
     @Override
     public String SetObjectIdentifier()
     {
-        return "page";
+        // leave blank as 'page' identifier is optional as per the wkhtmltopdf documentation
+        return "";
     }
 
     @Override
     public List<String> getCommandAsList(Pdf pdf) throws IOException
     {
         List<String> commands = new ArrayList<>();
-        commands.add( objectIdentifier );
+        if(StringUtils.isNotBlank(objectIdentifier)){
+            commands.add( objectIdentifier );
+        }
 
         // specify input
         if ( this.getType().equals( SourceType.htmlAsString ) )
@@ -41,7 +45,7 @@ public class Page extends BaseObject {
             // wkhtmltopdf, this is a workaround to avoid huge commands
             if ( this.getFilePath() != null )
                 Files.deleteIfExists( Paths.get( this.getFilePath() ) );
-            File temp = File.createTempFile( Pdf.TEMPORARY_FILE_PREFIX + UUID.randomUUID().toString(), ".html", pdf.tempDirectory ); // TODO: figure out a way to seperate this, so we don't need to pass the Pdf object in
+            File temp = File.createTempFile( Pdf.TEMPORARY_FILE_PREFIX + UUID.randomUUID().toString(), ".html", pdf.getTempDirectory() ); // TODO: figure out a way to seperate this, so we don't need to pass the Pdf object in
             FileUtils.writeStringToFile( temp, this.getSource(), "UTF-8" );
             this.setFilePath( temp.getAbsolutePath() );
             commands.add( temp.getAbsolutePath() );

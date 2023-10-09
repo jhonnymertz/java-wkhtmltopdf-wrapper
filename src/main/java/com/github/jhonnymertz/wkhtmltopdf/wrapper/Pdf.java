@@ -49,7 +49,7 @@ public class Pdf {
      */
     private int timeout = 10;
 
-    public File tempDirectory;
+    private File tempDirectory;
 
     public static String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
 
@@ -201,6 +201,15 @@ public class Pdf {
      */
     public void setTempDirectory(File tempDirectory) {
         this.tempDirectory = tempDirectory;
+    }
+
+    /**
+     * Gets the temporary folder where files are stored during processing
+     * 
+     * @return
+     */
+    public File getTempDirectory() {
+        return this.tempDirectory;
     }
 
     /**
