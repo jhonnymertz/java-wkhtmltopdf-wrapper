@@ -101,24 +101,22 @@ Page page2 = pdf.addPageFromUrl("http://www.google.com");
 page2.addParam(new Param( "--header-center", "Page2HeaderOverride")); // override global header
 ```
 
-### Page/object ordering
+### Page/object ordering and ToC positioning
 
-The list of pages/objects in the document appear as the order in which pages/objects were added to the main `pdf`:
+The list of pages/objects in the document appear as the order in which pages/objects were added to the main `pdf`. Except by the ToC, which is always placed at the beginning of the document. However, you can change this by using the `setAlwaysPutTocFirst(false)`.
 
 ```java
 final Pdf pdf = new Pdf(new WrapperConfig(WrapperConfig.findExecutable()));
+
 pdf.addCoverFromString("<html><head><meta charset=\"utf-8\"></head><h1>CoverPage</h1></html>");
+pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Page 1</h2></html>");
+pdf.addToc(); // ToC will be placed at the beginning of the document by default, regardless of the order of addition
+pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Page 2</h2></html>");
 
-TableOfContents toc = pdf.addToc();
-toc.addParam(new Param("--toc-header-text", "TableOfContents"));
-
-Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Heading1</h2></html>");
-mainPage.addParam(new Param("--exclude-from-outline"));
-
-pdf.getPDF(); // generated with cover coming before toc and toc before the main page
+pdf.getPDF(); // ToC forced to go first, then in order of addition: cover, page 1 and page 2 
 ```
 
-#### ToC positioning
+#### Changing ToC position
 
 By default, the ToC is always placed at the beginning of the document. You can change this by using the `setAlwaysPutTocFirst(false)`:
 
@@ -128,15 +126,11 @@ config.setAlwaysPutTocFirst(false);
 final Pdf pdf = new Pdf(config);
 
 pdf.addCoverFromString("<html><head><meta charset=\"utf-8\"></head><h1>CoverPage</h1></html>");
+pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Page 1</h2></html>");
+pdf.addToc(); // ToC will be placed according to the order of addition as config.setAlwaysPutTocFirst(false) is set
+pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Page 2</h2></html>");
 
-TableOfContents toc = pdf.addToc();
-toc.addParam(new Param("--toc-header-text", "TableOfContents"));
-
-Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Heading1</h2></html>");
-mainPage.addParam(new Param("--exclude-from-outline"));
-        
-// Save the PDF with cover comes before toc and toc before the main page 
-pdf.saveAs("output.pdf");
+pdf.getPDF(); // Follows order of addition: cover, page 1, ToC, and page 2
 ```
 
 ### Xvfb Support
