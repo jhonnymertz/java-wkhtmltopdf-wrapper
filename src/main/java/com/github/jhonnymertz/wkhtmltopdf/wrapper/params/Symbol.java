@@ -1,12 +1,22 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.params;
 
+/**
+ * The enum Symbol.
+ */
 public enum Symbol {
 
-    separator(" "), param("");
+    /**
+     * Separator symbol.
+     */
+    separator(" "),
+    /**
+     * Param symbol.
+     */
+    param("");
 
     private final String symbol;
 
-    Symbol(String symbol) {
+    Symbol(final String symbol) {
         this.symbol = symbol;
     }
 

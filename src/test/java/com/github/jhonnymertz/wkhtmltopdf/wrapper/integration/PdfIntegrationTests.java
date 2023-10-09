@@ -1,61 +1,65 @@
 package com.github.jhonnymertz.wkhtmltopdf.wrapper.integration;
 
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.core.StringContains.containsString;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class PdfIntegrationTests {
+class PdfIntegrationTests {
 
     @Test
-    public void findExecutable() {
+    void findExecutable() {
         //see if executable is installed
         try {
             WrapperConfig.findExecutable();
         } catch (RuntimeException ex) {
-            Assert.fail(ex.getMessage());
+            fail(ex.getMessage());
         }
     }
 
     @Test
-    public void getDefaultWkhtmltopdfCommandAsArray() {
+    void getDefaultWkhtmltopdfCommandAsArray() {
         String installedCommand = WrapperConfig.findExecutable();
 
         WrapperConfig wc = new WrapperConfig();
         String[] result = wc.getWkhtmltopdfCommandAsArray();
 
-        Assert.assertArrayEquals(installedCommand.split(" "), result);
+        assertArrayEquals(installedCommand.split(" "), result);
     }
 
     @Test
-    public void getCustomWkhtmltopdfCommandAsArray() {
+    void getCustomWkhtmltopdfCommandAsArray() {
         WrapperConfig wc = new WrapperConfig("custom wkhtmltopdf command");
 
         String[] result = wc.getWkhtmltopdfCommandAsArray();
 
-        Assert.assertEquals("custom", result[0]);
-        Assert.assertEquals("wkhtmltopdf", result[1]);
-        Assert.assertEquals("command", result[2]);
+        assertEquals("custom", result[0]);
+        assertEquals("wkhtmltopdf", result[1]);
+        assertEquals("command", result[2]);
     }
 
     @Test
-    public void testPdfFromStringTo() throws Exception {
+    void testPdfFromStringTo() throws Exception {
 
         // GIVEN a html template containing special characters that java stores in utf-16 internally
         Pdf pdf = new Pdf();
@@ -66,11 +70,11 @@ public class PdfIntegrationTests {
 
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
-        Assert.assertThat("document should contain the creditorName", pdfText, containsString("Müller"));
+        assertThat("document should contain the creditorName", pdfText, containsString("Müller"));
     }
 
     @Test
-    public void testMultipleObjectsOrder() throws Exception {
+    void testMultipleObjectsOrder() throws Exception {
         final String executable = WrapperConfig.findExecutable();
         WrapperConfig config = new WrapperConfig(executable);
         config.setAlwaysPutTocFirst(false);
@@ -83,7 +87,7 @@ public class PdfIntegrationTests {
 
         Page mainPage = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h2>Heading1</h2></html>");
         mainPage.addParam(new Param("--exclude-from-outline"));
-        
+
         byte[] pdfBytes = pdf.getPDF();
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
@@ -91,18 +95,18 @@ public class PdfIntegrationTests {
         int indexOfCover = pdfText.indexOf("CoverPage");
         int indexOfToc = pdfText.indexOf("TableOfContents");
         int indexOfMainPage = pdfText.indexOf("Heading1");
-        
-        Assert.assertThat("document should have a cover page before the table of contents", indexOfCover < indexOfToc, is(true));
-        Assert.assertThat("document should have a table of contents before the main page", indexOfToc < indexOfMainPage, is(true));
+
+        assertThat("document should have a cover page before the table of contents", indexOfCover < indexOfToc, is(true));
+        assertThat("document should have a table of contents before the main page", indexOfToc < indexOfMainPage, is(true));
     }
 
     @Test
-    public void testMultipleObjectsWithOptions() throws Exception {
+    void testMultipleObjectsWithOptions() throws Exception {
         final String executable = WrapperConfig.findExecutable();
         WrapperConfig config = new WrapperConfig(executable);
         Pdf pdf = new Pdf(config);
 
-        pdf.addParam( new Param( "--header-center", "GlobalHeader" ) );
+        pdf.addParam(new Param("--header-center", "GlobalHeader"));
 
         TableOfContents toc = pdf.addToc();
         toc.addParam(new Param("--footer-center", "TocFooter"));
@@ -112,8 +116,8 @@ public class PdfIntegrationTests {
         page1.addParam(new Param("--exclude-from-outline")); // removes from toc
 
         Page page2 = pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page2</h1></html>");
-        page2.addParam( new Param( "--header-center", "Page2HeaderOverride" ) ); // override global header
-        
+        page2.addParam(new Param("--header-center", "Page2HeaderOverride")); // override global header
+
         byte[] pdfBytes = pdf.getPDF();
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
@@ -121,19 +125,19 @@ public class PdfIntegrationTests {
         int tocFooterCount = StringUtils.countMatches(pdfText, "TocFooter");
         int page1FooterCount = StringUtils.countMatches(pdfText, "Page1Footer");
 
-        Assert.assertThat("document doesn't contain correct number of global headers", 2, equalTo(globalHeaderCount));
-        Assert.assertThat("document doesn't contain correct number of toc footers", 1, equalTo(tocFooterCount));
-        Assert.assertThat("document doesn't contain correct number of page 1 footers", 1, equalTo(page1FooterCount));
+        assertThat("document doesn't contain correct number of global headers", 2, equalTo(globalHeaderCount));
+        assertThat("document doesn't contain correct number of toc footers", 1, equalTo(tocFooterCount));
+        assertThat("document doesn't contain correct number of page 1 footers", 1, equalTo(page1FooterCount));
 
-        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(pdfBytes))) {
-            String pdfTocPageText = getPdfTextForPage(document,1);
-            Assert.assertThat("document toc shouldn't contain page1", pdfTocPageText, not(containsString("Page1")));
-            Assert.assertThat("document toc is missing page2", pdfTocPageText, containsString("Page2"));
+        try (PDDocument document = Loader.loadPDF(pdfBytes)) {
+            String pdfTocPageText = getPdfTextForPage(document, 1);
+            assertThat("document toc shouldn't contain page1", pdfTocPageText, not(containsString("Page1")));
+            assertThat("document toc is missing page2", pdfTocPageText, containsString("Page2"));
         }
     }
 
     @Test
-    public void testMultiplePages() throws Exception {
+    void testMultiplePages() throws Exception {
         Pdf pdf = new Pdf();
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>");
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 2</h1></html>");
@@ -145,11 +149,11 @@ public class PdfIntegrationTests {
 
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
-        Assert.assertThat("document should contain the fourth page name", pdfText, containsString("Page 4"));
+        assertThat("document should contain the fourth page name", pdfText, containsString("Page 4"));
     }
 
     @Test
-    public void callingGetCommandFollowedByGetPdfShouldNotInfluenceTheOutput() throws Exception {
+    void callingGetCommandFollowedByGetPdfShouldNotInfluenceTheOutput() throws Exception {
         Pdf pdf = new Pdf();
 
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Twice</h1></html>");
@@ -161,11 +165,11 @@ public class PdfIntegrationTests {
 
         String pdfText = getPdfTextFromBytes(pdfBytes);
 
-        Assert.assertThat("document should contain the string that was originally inserted", pdfText, containsString("Twice"));
+        assertThat("document should contain the string that was originally inserted", pdfText, containsString("Twice"));
     }
 
     @Test
-    public void testRemovingGeneratedFile() throws Exception {
+    void testRemovingGeneratedFile() throws Exception {
         Pdf pdf = new Pdf();
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 1</h1></html>");
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 2</h1></html>");
@@ -173,11 +177,11 @@ public class PdfIntegrationTests {
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Page 4</h1></html>");
 
         File savedPdf = pdf.saveAs("output.pdf");
-        Assert.assertTrue(savedPdf.delete());
+        assertTrue(savedPdf.delete());
     }
 
     private String getPdfTextFromBytes(byte[] pdfBytes) throws IOException {
-        PDDocument pdDocument = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+        PDDocument pdDocument = Loader.loadPDF(pdfBytes);
         String text = new PDFTextStripper().getText(pdDocument);
 
         pdDocument.close();
@@ -193,18 +197,18 @@ public class PdfIntegrationTests {
     }
 
     @Test
-    public void CleanUpTempFilesTest() {
+    void CleanUpTempFilesTest() {
         Pdf pdf = new Pdf();
         pdf.addPageFromString("<!DOCTYPE html><head><title>title</title></head><body><p>TEST</p></body>");
         try {
             pdf.getPDF();
         } catch (Exception ex) {
-            Assert.fail(ex.getMessage());
+            fail(ex.getMessage());
         }
     }
 
     @Test
-    public void testPdfWithXvfb() throws Exception {
+    void testPdfWithXvfb() throws Exception {
         WrapperConfig wc = null;
         if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
             XvfbConfig xc = new XvfbConfig();
@@ -220,14 +224,14 @@ public class PdfIntegrationTests {
 
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
-        PDDocument pdDocument = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+        PDDocument pdDocument = Loader.loadPDF(pdfBytes);
         String pdfText = new PDFTextStripper().getText(pdDocument);
 
-        Assert.assertThat("document should be generated", pdfText, containsString("Google"));
+        assertThat("document should be generated", pdfText, containsString("Google"));
     }
 
     @Test
-    public void testPdfWithLongParameters() throws Exception {
+    void testPdfWithLongParameters() throws Exception {
         final String executable = WrapperConfig.findExecutable();
         Pdf pdf = new Pdf(new WrapperConfig(executable));
         pdf.addPageFromUrl("http://www.google.com");
@@ -238,9 +242,9 @@ public class PdfIntegrationTests {
 
         // WHEN
         byte[] pdfBytes = pdf.getPDF();
-        PDDocument pdDocument = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+        PDDocument pdDocument = Loader.loadPDF(pdfBytes);
         String pdfText = new PDFTextStripper().getText(pdDocument);
 
-        Assert.assertThat("document should be generated", pdfText, containsString("Google"));
+        assertThat("document should be generated", pdfText, containsString("Google"));
     }
 }

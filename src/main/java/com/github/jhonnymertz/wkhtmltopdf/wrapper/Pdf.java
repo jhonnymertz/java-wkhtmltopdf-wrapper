@@ -6,8 +6,8 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFExportException;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.BaseObject;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Cover;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.SourceType;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.io.FileUtils;
@@ -24,8 +24,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -52,12 +57,18 @@ public class Pdf {
 
     private File tempDirectory;
 
+    /**
+     * The constant TEMPORARY_FILE_PREFIX.
+     */
     public static String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
 
     private String outputFilename = null;
 
-    private List<Integer> successValues = new ArrayList<Integer>(Arrays.asList(0));
+    private List<Integer> successValues = new ArrayList<>(Collections.singletonList(0));
 
+    /**
+     * Instantiates a new Pdf.
+     */
     @Deprecated
     /**
      * Default constructor
@@ -67,29 +78,40 @@ public class Pdf {
         this(new WrapperConfig());
     }
 
-    public Pdf(WrapperConfig wrapperConfig) {
+    /**
+     * Instantiates a new Pdf.
+     *
+     * @param wrapperConfig the wrapper config
+     */
+    public Pdf(final WrapperConfig wrapperConfig) {
         this.wrapperConfig = wrapperConfig;
         this.params = new Params();
-        this.objects = new ArrayList<BaseObject>();
+        this.objects = new ArrayList<>();
         logger.info("Initialized with {}", wrapperConfig);
     }
 
     /**
      * Add a page to the pdf
      *
+     * @param source the source
+     * @param type   the type
+     * @return the page
      * @deprecated Use the specific type method to a better semantic
      */
     @Deprecated
-    public Page addPage(String source, SourceType type) {
+    public Page addPage(final String source, final SourceType type) {
         Page page = new Page(source, type);
         this.objects.add(page);
         return page;
     }
 
-     /**
+    /**
      * Add a cover from an URL to the pdf
+     *
+     * @param source the source
+     * @return the cover
      */
-    public Cover addCoverFromUrl(String source) {
+    public Cover addCoverFromUrl(final String source) {
         Cover cover = new Cover(source, SourceType.url);
         this.objects.add(cover);
         return cover;
@@ -97,8 +119,11 @@ public class Pdf {
 
     /**
      * Add a cover from a HTML-based string to the pdf
+     *
+     * @param source the source
+     * @return the cover
      */
-    public Cover addCoverFromString(String source) {
+    public Cover addCoverFromString(final String source) {
         Cover cover = new Cover(source, SourceType.htmlAsString);
         this.objects.add(cover);
         return cover;
@@ -106,8 +131,11 @@ public class Pdf {
 
     /**
      * Add a cover from a file to the pdf
+     *
+     * @param source the source
+     * @return the cover
      */
-    public Cover addCoverFromFile(String source) {
+    public Cover addCoverFromFile(final String source) {
         Cover cover = new Cover(source, SourceType.file);
         this.objects.add(cover);
         return cover;
@@ -115,8 +143,11 @@ public class Pdf {
 
     /**
      * Add a page from an URL to the pdf
+     *
+     * @param source the source
+     * @return the page
      */
-    public Page addPageFromUrl(String source) {
+    public Page addPageFromUrl(final String source) {
         Page page = new Page(source, SourceType.url);
         this.objects.add(page);
         return page;
@@ -124,8 +155,11 @@ public class Pdf {
 
     /**
      * Add a page from a HTML-based string to the pdf
+     *
+     * @param source the source
+     * @return the page
      */
-    public Page addPageFromString(String source) {
+    public Page addPageFromString(final String source) {
         Page page = new Page(source, SourceType.htmlAsString);
         this.objects.add(page);
         return page;
@@ -133,8 +167,11 @@ public class Pdf {
 
     /**
      * Add a page from a file to the pdf
+     *
+     * @param source the source
+     * @return the page
      */
-    public Page addPageFromFile(String source) {
+    public Page addPageFromFile(final String source) {
         Page page = new Page(source, SourceType.file);
         this.objects.add(page);
         return page;
@@ -142,6 +179,8 @@ public class Pdf {
 
     /**
      * Add a toc
+     *
+     * @return the table of contents
      */
     public TableOfContents addToc() {
         TableOfContents toc = new TableOfContents();
@@ -150,21 +189,34 @@ public class Pdf {
         return toc;
     }
 
-    public void addParam(Param param, Param... params) {
+    /**
+     * Adds a global param
+     *
+     * @param param  the global param
+     * @param params the global params
+     */
+    public void addParam(final Param param, final Param... params) {
         this.params.add(param, params);
     }
 
     /**
-     * Adds a param to the most recently added toc
+     * Adds a param to the most recently added toc. If more than one ToC is needed, make sure to use per-object params.
+     *
+     * @param param  the param
+     * @param params the params
+     * @deprecated Use per-object params as this will add only to the last ToC
      */
-    public void addTocParam(Param param, Param... params) {
+    @Deprecated
+    public void addTocParam(final Param param, final Param... params) {
         this.lastToc.addParam(param, params);
     }
 
     /**
      * Sets the timeout to wait while generating a PDF, in seconds
+     *
+     * @param timeout the timeout
      */
-    public void setTimeout(int timeout) {
+    public void setTimeout(final int timeout) {
         this.timeout = timeout;
     }
 
@@ -180,6 +232,11 @@ public class Pdf {
         }
     }
 
+    /**
+     * Gets allow missing assets.
+     *
+     * @return the allow missing assets
+     */
     public boolean getAllowMissingAssets() {
         return successValues.contains(1);
     }
@@ -190,7 +247,7 @@ public class Pdf {
      *
      * @param successValues The full list of process return values you will accept as a 'success'.
      */
-    public void setSuccessValues(List<Integer> successValues) {
+    public void setSuccessValues(final List<Integer> successValues) {
         this.successValues = successValues;
     }
 
@@ -198,16 +255,16 @@ public class Pdf {
      * Sets the temporary folder to store files during the process
      * Default is provided by #File.createTempFile()
      *
-     * @param tempDirectory
+     * @param tempDirectory the temp directory
      */
-    public void setTempDirectory(File tempDirectory) {
+    public void setTempDirectory(final File tempDirectory) {
         this.tempDirectory = tempDirectory;
     }
 
     /**
      * Gets the temporary folder where files are stored during processing
-     * 
-     * @return
+     *
+     * @return temp directory
      */
     public File getTempDirectory() {
         return this.tempDirectory;
@@ -216,12 +273,12 @@ public class Pdf {
     /**
      * Executes the wkhtmltopdf into standard out and captures the results.
      *
-     * @param path The path to the file where the PDF will be saved.
-     * @return
-     * @throws IOException
-     * @throws InterruptedException
+     * @param path The path to the file where the PDF will be saved
+     * @return the pdf file generated pointing to the location saved
+     * @throws IOException          when not able to save the file
+     * @throws InterruptedException when the PDF generation process got interrupted
      */
-    public File saveAs(String path) throws IOException, InterruptedException {
+    public File saveAs(final String path) throws IOException, InterruptedException {
         File file = new File(path);
         FileUtils.writeByteArrayToFile(file, getPDF());
         logger.info("PDF successfully saved in {}", file.getAbsolutePath());
@@ -233,10 +290,10 @@ public class Pdf {
      *
      * @param path The path to the file where the PDF will be saved.
      * @return the pdf file saved
-     * @throws IOException when not able to save the file
+     * @throws IOException          when not able to save the file
      * @throws InterruptedException when the PDF generation process got interrupted
      */
-    public File saveAsDirect(String path) throws IOException, InterruptedException {
+    public File saveAsDirect(final String path) throws IOException, InterruptedException {
         File file = new File(path);
         outputFilename = file.getAbsolutePath();
         getPDF();
@@ -247,9 +304,9 @@ public class Pdf {
      * Generates a PDF file as byte array from the wkhtmltopdf output
      *
      * @return the PDF file as a byte array
-     * @throws IOException when not able to save the file
+     * @throws IOException          when not able to save the file
      * @throws InterruptedException when the PDF generation process got interrupted
-     * @throws PDFExportException when the wkhtmltopdf process fails
+     * @throws PDFExportException   when the wkhtmltopdf process fails
      */
     public byte[] getPDF() throws IOException, InterruptedException, PDFExportException {
 
@@ -292,7 +349,7 @@ public class Pdf {
      * @throws IOException when not able to save temporary files from htmlAsString
      */
     protected String[] getCommandAsArray() throws IOException {
-        List<String> commandLine = new ArrayList<String>();
+        List<String> commandLine = new ArrayList<>();
 
         if (wrapperConfig.isXvfbEnabled()) {
             commandLine.addAll(wrapperConfig.getXvfbConfig().getCommandLine());
@@ -304,7 +361,7 @@ public class Pdf {
         commandLine.addAll(params.getParamsAsStringList());
 
         // Check if TOC is always first
-        if(wrapperConfig.getAlwaysPutTocFirst()) {
+        if (wrapperConfig.getAlwaysPutTocFirst()) {
             // remove and add TOC to top
             List<BaseObject> tocObjects = objects.stream().filter((o) -> o instanceof TableOfContents).collect(Collectors.toList()); // .getObjectIdentifier().equalsIgnoreCase("toc")
             objects.removeAll(tocObjects);
@@ -317,7 +374,7 @@ public class Pdf {
         }
 
         commandLine.add((null != outputFilename) ? outputFilename : STDINOUT);
-        logger.debug("Command generated: {}", commandLine.toString());
+        logger.debug("Command generated: {}", commandLine);
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
@@ -332,7 +389,7 @@ public class Pdf {
     private byte[] getFuture(Future<byte[]> future) {
         try {
             return future.get(this.timeout, TimeUnit.SECONDS);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -343,7 +400,7 @@ public class Pdf {
     private void cleanTempFiles() {
         logger.debug("Cleaning up temporary files...");
         for (BaseObject object : objects) {
-            if(object instanceof Page) {
+            if (object instanceof Page) {
                 Page page = (Page) object;
                 if (page.getType().equals(SourceType.htmlAsString)) {
                     try {
@@ -381,5 +438,4 @@ public class Pdf {
     public String getCommand() throws IOException {
         return StringUtils.join(getCommandAsArray(), " ");
     }
-
 }

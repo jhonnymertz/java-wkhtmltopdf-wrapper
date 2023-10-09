@@ -8,154 +8,156 @@ import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Cover;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PdfTests {
+class PdfTests {
 
     private WrapperConfig wc;
     private Pdf pdf;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         wc = new WrapperConfig("wkhtmltopdf");
         pdf = new Pdf(wc);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         pdf.cleanAllTempFiles();
     }
 
     @Test
-    public void testParams() throws Exception {
+    void testParams() throws Exception {
         pdf.addParam(new Param("--enable-javascript"), new Param("--html-header", "file:///example.html"));
         pdf.addPageFromUrl("http://www.google.com");
-        Assert.assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
+        assertThat("command params should contain the --enable-javascript and --html-header", pdf.getCommand(), containsString("--enable-javascript --html-header file:///example.html"));
     }
 
     @Test
-    public void testUniqueTempFileGenerationDirectory() throws IOException {
+    void testUniqueTempFileGenerationDirectory() throws IOException {
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
         pdf.getCommand();
         pdf.getCommand();
         final File dir = new File(System.getProperty("java.io.tmpdir"));
         File[] files = dir.listFiles(new FilenameFilterConfig());
-        Assert.assertEquals(1, files.length);
+        assertEquals(1, files.length);
     }
 
     @Test
-    public void testTempDirectoryCleanup() throws IOException {
+    void testTempDirectoryCleanup() throws IOException {
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
         pdf.getCommand();
         final File dir = new File(System.getProperty("java.io.tmpdir"));
         File[] files = dir.listFiles(new FilenameFilterConfig());
-        Assert.assertEquals(1, files.length);
+        assertEquals(1, files.length);
         pdf.cleanAllTempFiles();
         files = dir.listFiles(new FilenameFilterConfig());
-        Assert.assertEquals(0, files.length);
+        assertEquals(0, files.length);
     }
 
     @Test
-    public void testCustomTempDirectory() throws IOException {
+    void testCustomTempDirectory() throws IOException {
         File f = File.createTempFile("java-wrapper-wkhtmltopdf-test", ".html");
         pdf.setTempDirectory(new File(f.getParent()));
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
-        Assert.assertThat("command params should contain custom temp directory", pdf.getCommand(), containsString(f.getParent()));
+        assertThat("command params should contain custom temp directory", pdf.getCommand(), containsString(f.getParent()));
     }
 
     @Test
-    public void testMissingAssetsProperty() {
+    void testMissingAssetsProperty() {
         pdf.addPageFromUrl("http://www.google.com");
         pdf.setAllowMissingAssets();
-        Assert.assertTrue(pdf.getAllowMissingAssets());
+        assertTrue(pdf.getAllowMissingAssets());
         pdf.setSuccessValues(Arrays.asList(0, 1));
-        Assert.assertTrue(pdf.getAllowMissingAssets());
+        assertTrue(pdf.getAllowMissingAssets());
     }
 
     @Test
-    public void testAddPages() throws IOException {
+    void testAddPages() throws IOException {
         pdf.addPageFromUrl("http://www.google.com");
         pdf.addPageFromString("<html><head><meta charset=\"utf-8\"></head><h1>Müller</h1></html>");
         pdf.addPageFromFile("test.html");
-        Assert.assertThat("command params should contain url input", pdf.getCommand(), containsString("http://www.google.com"));
-        Assert.assertThat("command params should contain file input", pdf.getCommand(), containsString("test.html"));
+        assertThat("command params should contain url input", pdf.getCommand(), containsString("http://www.google.com"));
+        assertThat("command params should contain file input", pdf.getCommand(), containsString("test.html"));
     }
 
     @Test
-    public void testTocParams() throws IOException {
+    void testTocParams() throws IOException {
         pdf.addToc();
         pdf.addTocParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
         pdf.addPageFromUrl("http://www.google.com");
-        Assert.assertThat("command params should contain toc params", pdf.getCommand(), containsString("--test-param2 test-value"));
+        assertThat("command params should contain toc params", pdf.getCommand(), containsString("--test-param2 test-value"));
     }
 
     @Test
-    public void testTocParamsUsingTocObject() throws IOException {
+    void testTocParamsUsingTocObject() throws IOException {
         TableOfContents toc = pdf.addToc();
         toc.addParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
         pdf.addPageFromUrl("http://www.google.com");
-        Assert.assertThat("command params should contain toc params", pdf.getCommand(), containsString("--test-param2 test-value"));
+        assertThat("command params should contain toc params", pdf.getCommand(), containsString("--test-param2 test-value"));
     }
 
     @Test
-    public void testXvfbCommand() throws Exception {
+    void testXvfbCommand() throws Exception {
         wc.setXvfbConfig(new XvfbConfig());
         pdf = new Pdf(wc);
-        Assert.assertThat("command should contain xvfb-run config", pdf.getCommand(), containsString("xvfb-run"));
+        assertThat("command should contain xvfb-run config", pdf.getCommand(), containsString("xvfb-run"));
     }
 
     @Test
-    public void testTocAlwaysFirstByDefault() throws Exception {
+    void testTocAlwaysFirstByDefault() throws Exception {
         pdf.addPageFromUrl("http://www.google.com");
         pdf.addToc();
         pdf.addPageFromFile("test.html");
-        Assert.assertThat("command params should contain toc before pages", pdf.getCommand(), containsString("wkhtmltopdf toc http://www.google.com test.html -"));
+        assertThat("command params should contain toc before pages", pdf.getCommand(), containsString("wkhtmltopdf toc http://www.google.com test.html -"));
     }
 
     @Test
-    public void testTocCustomLocation() throws Exception {
+    void testTocCustomLocation() throws Exception {
         wc.setAlwaysPutTocFirst(false);
         pdf.addPageFromUrl("http://www.google.com");
         pdf.addToc();
         pdf.addPageFromFile("test.html");
-        Assert.assertThat("command params should contain toc after url page and before file page", pdf.getCommand(), containsString("wkhtmltopdf http://www.google.com toc test.html -"));
+        assertThat("command params should contain toc after url page and before file page", pdf.getCommand(), containsString("wkhtmltopdf http://www.google.com toc test.html -"));
     }
 
     @Test
-    public void testPageParams() throws IOException {
+    void testPageParams() throws IOException {
         Page page1 = pdf.addPageFromUrl("http://www.google.com");
         page1.addParam(new Param("--exclude-from-outline"));
         Page page2 = pdf.addPageFromFile("test.html");
         page2.addParam( new Param("--zoom", "2"));
-        Assert.assertThat("command url page should contain page specific params", pdf.getCommand(), containsString("http://www.google.com --exclude-from-outline"));
-        Assert.assertThat("command file page should contain page specific params", pdf.getCommand(), containsString("test.html --zoom"));
+        assertThat("command url page should contain page specific params", pdf.getCommand(), containsString("http://www.google.com --exclude-from-outline"));
+        assertThat("command file page should contain page specific params", pdf.getCommand(), containsString("test.html --zoom"));
     }
 
     @Test
-    public void testCoverParams() throws IOException {
+    void testCoverParams() throws IOException {
         Cover cover = pdf.addCoverFromFile("cover.html");
         cover.addParam(new Param("--test-param"), new Param("--test-param2", "test-value"));
         pdf.addPageFromUrl("http://www.google.com");
-        Assert.assertThat("command params should contain cover params", pdf.getCommand(), containsString("cover cover.html --test-param --test-param2 test-value"));
+        assertThat("command params should contain cover params", pdf.getCommand(), containsString("cover cover.html --test-param --test-param2 test-value"));
     }
 
     @Test
-    public void testMulipleObjects() throws IOException {
+    void testMulipleObjects() throws IOException {
         wc.setAlwaysPutTocFirst(false);
         pdf.addCoverFromFile("cover.html");
         pdf.addPageFromFile("foreword.html");
         pdf.addToc();
         pdf.addPageFromUrl("http://www.google.com");
         pdf.addPageFromFile("test.html");
-        Assert.assertThat("command should match the order objects are added", pdf.getCommand(), containsString("wkhtmltopdf cover cover.html foreword.html toc http://www.google.com test.html -"));
+        assertThat("command should match the order objects are added", pdf.getCommand(), containsString("wkhtmltopdf cover cover.html foreword.html toc http://www.google.com test.html -"));
     }
 }

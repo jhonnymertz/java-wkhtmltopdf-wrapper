@@ -14,28 +14,57 @@ public class XvfbConfig {
     private final Params params = new Params();
     private String command;
 
+    /**
+     * Instantiates a new Xvfb config.
+     */
     public XvfbConfig() {
         this("xvfb-run");
     }
 
-    public XvfbConfig(String command) {
+    /**
+     * Instantiates a new Xvfb config.
+     *
+     * @param command the command
+     */
+    public XvfbConfig(final String command) {
         setCommand(command);
     }
 
-    public void addParams(Param param, Param... params) {
+    /**
+     * Add params.
+     *
+     * @param param  the param
+     * @param params the params
+     */
+    public void addParams(final Param param, final Param... params) {
         this.params.add(param, params);
     }
 
+    /**
+     * Gets command.
+     *
+     * @return the command
+     */
     public String getCommand() {
         return command;
     }
 
-    public void setCommand(String command) {
+    /**
+     * Sets command.
+     *
+     * @param command the command
+     */
+    public void setCommand(final String command) {
         this.command = command;
     }
 
+    /**
+     * Gets command line.
+     *
+     * @return the command line
+     */
     public List<String> getCommandLine() {
-        List<String> commandLine = new ArrayList<String>();
+        List<String> commandLine = new ArrayList<>();
 
         commandLine.add(getCommand());
         commandLine.addAll(params.getParamsAsStringList());
