@@ -26,6 +26,12 @@ public class WrapperConfig {
      */
     private String wkhtmltopdfCommand = "wkhtmltopdf";
 
+	/**
+	 * Default - Command to always put TOC first
+	 * Toggle this off to customise TOC location
+	 */
+	private boolean alwaysPutTocFirst = true;
+
     /**
      * Initialize the configuration based on searching for wkhtmltopdf command to be used into the SO's path
      *
@@ -119,6 +125,24 @@ public class WrapperConfig {
     public void setXvfbConfig(XvfbConfig xvfbConfig) {
         this.xvfbConfig = xvfbConfig;
     }
+
+	/**
+	 * Sets the way TOC locations are determined in the command
+	 * 
+	 * @param alwaysFirst - desired TOC location
+	 */
+	public void setAlwaysPutTocFirst(boolean alwaysFirst) {
+		this.alwaysPutTocFirst = alwaysFirst;
+	}
+
+	/**
+	 * Gets if the TOC is always placed first in the command
+	 * 
+	 * @return the desired TOC location as being always first
+	 */
+	public boolean getAlwaysPutTocFirst() {
+		return this.alwaysPutTocFirst;
+	}
 
     @Override
     public String toString() {

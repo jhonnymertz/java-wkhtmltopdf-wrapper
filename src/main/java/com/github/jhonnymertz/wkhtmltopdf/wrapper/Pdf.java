@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a Pdf file and wraps up the wkhtmltopdf processing
@@ -301,6 +302,14 @@ public class Pdf {
 
         // Global options
         commandLine.addAll(params.getParamsAsStringList());
+
+        // Check if TOC is always first
+        if(wrapperConfig.getAlwaysPutTocFirst()) {
+            // remove and add TOC to top
+            List<BaseObject> tocObjects = objects.stream().filter((o) -> o instanceof TableOfContents).collect(Collectors.toList()); // .getObjectIdentifier().equalsIgnoreCase("toc")
+            objects.removeAll(tocObjects);
+            objects.addAll(0, tocObjects);
+        }
 
         // Object and object options
         for (BaseObject object : objects) {
