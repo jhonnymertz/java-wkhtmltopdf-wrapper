@@ -337,7 +337,12 @@ public class Pdf {
 
             if (command.contains("window-status")) {
                 logger.debug("Waiting for window-status waitFor: {}s...", this.windowStatusTimeout);
-                process.waitFor(this.windowStatusTimeout, TimeUnit.SECONDS);
+                if (!process.waitFor(this.windowStatusTimeout, TimeUnit.SECONDS)) {
+                    // 关闭进程
+                    process.destroy();
+                    logger.error("Error generating pdf by window-status timeout, command: {}", command);
+                    throw new RuntimeException("window-status timeout");
+                }
             } else {
                 process.waitFor();
             }
