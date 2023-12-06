@@ -55,6 +55,12 @@ public class Pdf {
      */
     private int timeout = 10;
 
+    /**
+     * wkHTMLtoPDF uses a rather old version of WebKit, which often has trouble with up-to-date JavaScript code.
+     * When using window-status and a SyntaxError: Parse error occurs in JavaScript, it can result in the failure of setting the window-status. The wkhtmltopdf process will remain in a waiting state indefinitely. In such cases, a timeout is needed to handle this situation.
+     * */
+    private int windowStatusTimeout = 30;
+
     private File tempDirectory;
 
     /**
@@ -221,6 +227,15 @@ public class Pdf {
     }
 
     /**
+     * Sets the timeout to wait windowStatus while generating a PDF, in seconds
+     *
+     * @param windowStatusTimeout the windowStatusTimeout
+     */
+    public void setWindowStatusTimeout(final int windowStatusTimeout) {
+        this.windowStatusTimeout = windowStatusTimeout;
+    }
+
+    /**
      * wkhtmltopdf often returns 1 to indicate some assets can't be found,
      * this can occur for protocol less links or in other cases. Sometimes you
      * may want to reject these with an exception which is the default, but in other
@@ -320,7 +335,12 @@ public class Pdf {
             Future<byte[]> inputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getInputStream()));
             Future<byte[]> outputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
 
-            process.waitFor();
+            if (command.contains("window-status")) {
+                logger.debug("Waiting for window-status waitFor: {}s...", this.windowStatusTimeout);
+                process.waitFor(this.windowStatusTimeout, TimeUnit.SECONDS);
+            } else {
+                process.waitFor();
+            }
 
             if (!successValues.contains(process.exitValue())) {
                 byte[] errorStream = getFuture(outputStreamToByteArray);
