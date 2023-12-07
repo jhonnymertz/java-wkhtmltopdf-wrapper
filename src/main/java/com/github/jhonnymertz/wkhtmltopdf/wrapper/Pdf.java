@@ -3,7 +3,13 @@ package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFExportException;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.*;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFGenerationException;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFTimeoutException;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.BaseObject;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Cover;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.SourceType;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.io.FileUtils;
@@ -22,7 +28,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +63,7 @@ public class Pdf {
     /**
      * The constant TEMPORARY_FILE_PREFIX.
      */
-    public static String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
+    public static final String TEMPORARY_FILE_PREFIX = "java-wkhtmltopdf-wrapper";
 
     private String outputFilename = null;
 
@@ -315,7 +326,7 @@ public class Pdf {
             if (!process.waitFor(this.timeout, TimeUnit.SECONDS)) {
                 process.destroy();
                 logger.error("PDF generation failed by defined timeout of {}s, command: {}", timeout, command);
-                throw new RuntimeException("PDF generation timeout by user. Try to increase the timeout.");
+                throw new PDFTimeoutException(command, this.timeout, getFuture(inputStreamToByteArray));
             }
 
             if (!successValues.contains(process.exitValue())) {
@@ -359,7 +370,7 @@ public class Pdf {
         // Check if TOC is always first
         if (wrapperConfig.getAlwaysPutTocFirst()) {
             // remove and add TOC to top
-            List<BaseObject> tocObjects = objects.stream().filter((o) -> o instanceof TableOfContents).collect(Collectors.toList()); // .getObjectIdentifier().equalsIgnoreCase("toc")
+            List<BaseObject> tocObjects = objects.stream().filter(TableOfContents.class::isInstance).collect(Collectors.toList());
             objects.removeAll(tocObjects);
             objects.addAll(0, tocObjects);
         }
@@ -374,24 +385,30 @@ public class Pdf {
         return commandLine.toArray(new String[commandLine.size()]);
     }
 
+    /**
+     * Converts an InputStream to a byte array
+     *
+     * @param input the input stream
+     * @return the byte array
+     */
     private Callable<byte[]> streamToByteArrayTask(final InputStream input) {
-        return new Callable<byte[]>() {
-            public byte[] call() throws Exception {
-                return IOUtils.toByteArray(input);
-            }
-        };
+        return () -> IOUtils.toByteArray(input);
     }
 
     private byte[] getFuture(Future<byte[]> future) {
         try {
             return future.get(this.timeout, TimeUnit.SECONDS);
+        } catch (final TimeoutException e) {
+            logger.error("PDF generation failed by defined timeout of {}s", timeout);
+            throw new PDFTimeoutException(this.timeout, e);
         } catch (final Exception e) {
-            throw new RuntimeException(e);
+            logger.error("Something went wrong while generating PDF.", e);
+            throw new PDFGenerationException(e);
         }
     }
 
     /**
-     * CLeans up temporary files used to generate the wkhtmltopdf command
+     * Cleans up temporary files used to generate the wkhtmltopdf command
      */
     private void cleanTempFiles() {
         logger.debug("Cleaning up temporary files...");
@@ -401,9 +418,9 @@ public class Pdf {
                 if (page.getType().equals(SourceType.htmlAsString)) {
                     try {
                         Path p = Paths.get(page.getFilePath());
-                        logger.debug("Delete temp file at: " + page.getFilePath() + " " + Files.deleteIfExists(p));
+                        logger.debug("Delete temp file at: '{}' Status: '{}'", page.getFilePath(), Files.deleteIfExists(p));
                     } catch (IOException ex) {
-                        logger.warn("Couldn't delete temp file " + page.getFilePath());
+                        logger.warn("Couldn't delete temp file '{}'", page.getFilePath(), ex);
                     }
                 }
             }
@@ -419,7 +436,7 @@ public class Pdf {
         final File[] files = folder.listFiles(new FilenameFilterConfig());
         for (final File file : files) {
             if (!file.delete()) {
-                logger.warn("Couldn't delete temp file " + file.getAbsolutePath());
+                logger.warn("Couldn't delete temp file '{}'", file.getAbsolutePath());
             }
         }
         logger.debug("{} temporary files removed.", files.length);

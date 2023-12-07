@@ -3,6 +3,7 @@ package com.github.jhonnymertz.wkhtmltopdf.wrapper.integration;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.Pdf;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.XvfbConfig;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFTimeoutException;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
@@ -22,6 +23,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -249,24 +251,36 @@ class PdfIntegrationTests {
     }
 
     @Test
-    void testPdfWithWindowStatusTimeoutParameters() throws Exception {
+    void testPdfWithWindowStatusTimeoutParameters() {
         final String executable = WrapperConfig.findExecutable();
         Pdf pdf = new Pdf(new WrapperConfig(executable));
         pdf.addPageFromUrl("http://www.google.com");
 
+        /*
+         * Due to the absence of the `window.status` assignment on the `www.google.com` page, a timeout exception is certain to occur.
+         * This simulates a scenario where the `window.status` assignment fails.
+         *
+         */
         pdf.addParam(new Param("--window-status", "complete"));
 
-        String exceptionMessage = "";
-        try {
-            /*
-             * Due to the absence of the `window.status` assignment on the `www.google.com` page, a timeout exception is certain to occur.
-             * This simulates a scenario where the `window.status` assignment fails.
-             * */
-            pdf.getPDF();
-        } catch (RuntimeException e) {
-            exceptionMessage = e.getMessage();
-        }
-        assertThat("it should throw a PDF generation timeout exception", exceptionMessage, containsString("PDF generation timeout by user"));
+        final PDFTimeoutException pdfTimeoutException = assertThrows(PDFTimeoutException.class, pdf::getPDF);
+        assertThat("Message should contain timeout seconds", pdfTimeoutException.getMessage(),
+                containsString("timeout after 10 seconds"));
+        assertThat("Message should contain suggestion to increase", pdfTimeoutException.getMessage(),
+                containsString("Try to increase the timeout via the 'PDF.setTimeout()' method."));
+    }
 
+    @Test
+    void testPdfWithShortTimeoutParameters() {
+        final String executable = WrapperConfig.findExecutable();
+        Pdf pdf = new Pdf(new WrapperConfig(executable));
+        pdf.addPageFromUrl("http://www.google.com");
+        pdf.setTimeout(0);
+
+        final PDFTimeoutException pdfTimeoutException = assertThrows(PDFTimeoutException.class, pdf::getPDF);
+        assertThat("Message should contain timeout seconds", pdfTimeoutException.getMessage(),
+                containsString("timeout after 0 seconds"));
+        assertThat("Message should contain suggestion to increase", pdfTimeoutException.getMessage(),
+                containsString("Try to increase the timeout via the 'PDF.setTimeout()' method."));
     }
 }

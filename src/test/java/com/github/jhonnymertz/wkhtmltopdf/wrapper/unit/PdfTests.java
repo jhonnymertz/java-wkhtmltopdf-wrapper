@@ -151,7 +151,7 @@ class PdfTests {
     }
 
     @Test
-    void testMulipleObjects() throws IOException {
+    void testMultipleObjects() throws IOException {
         wc.setAlwaysPutTocFirst(false);
         pdf.addCoverFromFile("cover.html");
         pdf.addPageFromFile("foreword.html");

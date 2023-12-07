@@ -16,7 +16,7 @@ If you are using Gradle/Maven, see example below:
 In your `build.gradle`:
 ```groovy
 dependencies {
-    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.2.0-RELEASE'
+    compile 'com.github.jhonnymertz:java-wkhtmltopdf-wrapper:1.3.0-RELEASE'
 }
 ```
 
@@ -26,7 +26,7 @@ In your `pom.xml`:
 <dependency>
     <groupId>com.github.jhonnymertz</groupId>
     <artifactId>java-wkhtmltopdf-wrapper</artifactId>
-    <version>1.2.0-RELEASE</version>
+    <version>1.3.0-RELEASE</version>
 </dependency>
 ```
 
@@ -163,6 +163,19 @@ pdf.setSuccessValues(Arrays.asList(0, 1));
 pdf.saveAs("output.pdf");
 ```
 
+### Timeouts
+
+There are often situations in which the wkhtmltopdf may take longer to generate the file. By default, the library uses a 10 seconds timeout for all the internal processes depending on wkhtmltopdf. However, in some situation 10s may not be sufficient, thus you can customize this value:
+
+```java
+Pdf pdf = new Pdf();
+pdf.addPageFromUrl("http://www.google.com");
+
+pdf.setTimeout(30); // 30 seconds timeout
+
+pdf.saveAs("output.pdf");
+```
+
 ### Cleaning up temporary files
 
 After the PDF generation, the library automatically cleans up the temporary files created. However, there may be situations in which the `Pdf` object is created but no PDF is generated. To avoid increasing the temp folder size and having problems, you can force the deletion of all temporary files created by the library by:
@@ -180,8 +193,11 @@ Known issues
 ------------
 
 **Output of wkhtmltopdf is being added to resulting pdf** ([Issue #19](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/issues/19))
-- Starting from 1.1.10-RELEASE version, there is a method `saveAsDirect(String path)`, which executes wkhtmltopdf passing the `path` as output for wkhtmltopdf, instead of the standard input `-`. This saves the results directly to the specified file `path`.
-
+- Starting from 1.1.10-RELEASE version, there is a method `saveAsDirect(String path)`, which executes wkhtmltopdf passing the `path` as output for wkhtmltopdf, instead of the standard input `-`. This saves the results directly to the specified file `path` without handling it with internal stdout.
+**Processes taking longer due to some wkhtmltopdf parameters, such as `window.status`, possibly resulting in timeouts** ([Pull #131](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/pull/131))
+- Some parameters may cause wkhtmltopdf think that the page has not loaded and it will wait for longer, causing some internal processes of the library to be blocked. To avoid blocking the internal processes of the library, the given timeout (default 10s) was forcibly set to all the internal processes. This value can be increased by using `setTimeout(int seconds)`. Please refer to the [Timeouts](#timeouts) section for more information.
+- This issue is often caused by developers unfamiliar with wkhtmltopdf features and not related to the library itself. If you are experiencing something related, check the command being generated and the parameters you are using. Try to remove them one by one to find the one causing the issue. 
+  
 **Because this library relies on `wkhtmltopdf`, it does not support concurrent PDF generations.**
 
 License
