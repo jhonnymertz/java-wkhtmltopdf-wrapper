@@ -252,7 +252,7 @@ class PdfIntegrationTests {
     void testPdfWithWindowStatusTimeoutParameters() throws Exception {
         final String executable = WrapperConfig.findExecutable();
         Pdf pdf = new Pdf(new WrapperConfig(executable));
-        pdf.addPageFromUrl("http://www.baidu.com");
+        pdf.addPageFromUrl("http://www.google.com");
 
         /*
          * After adding the `--window-status` parameter, wkhtmltopdf considers the current page to be loaded only when you execute `window.status = "complete"` in JavaScript. This is typically used in scenarios where page content is asynchronously generated. Omitting this parameter can result in incomplete rendering of the page content.
