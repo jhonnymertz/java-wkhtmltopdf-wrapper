@@ -3,11 +3,7 @@ package com.github.jhonnymertz.wkhtmltopdf.wrapper;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.FilenameFilterConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.configurations.WrapperConfig;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.exceptions.PDFExportException;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.BaseObject;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Cover;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.Page;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.SourceType;
-import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.TableOfContents;
+import com.github.jhonnymertz.wkhtmltopdf.wrapper.objects.*;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Param;
 import com.github.jhonnymertz.wkhtmltopdf.wrapper.params.Params;
 import org.apache.commons.io.FileUtils;
@@ -26,11 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,12 +46,6 @@ public class Pdf {
      * Timeout to wait while generating a PDF, in seconds
      */
     private int timeout = 10;
-
-    /**
-     * wkHTMLtoPDF uses a rather old version of WebKit, which often has trouble with up-to-date JavaScript code.
-     * When using window-status and a SyntaxError: Parse error occurs in JavaScript, it can result in the failure of setting the window-status. The wkhtmltopdf process will remain in a waiting state indefinitely. In such cases, a timeout is needed to handle this situation.
-     * */
-    private int windowStatusTimeout = 30;
 
     private File tempDirectory;
 
@@ -227,15 +213,6 @@ public class Pdf {
     }
 
     /**
-     * Sets the timeout to wait windowStatus while generating a PDF, in seconds
-     *
-     * @param windowStatusTimeout the windowStatusTimeout
-     */
-    public void setWindowStatusTimeout(final int windowStatusTimeout) {
-        this.windowStatusTimeout = windowStatusTimeout;
-    }
-
-    /**
      * wkhtmltopdf often returns 1 to indicate some assets can't be found,
      * this can occur for protocol less links or in other cases. Sometimes you
      * may want to reject these with an exception which is the default, but in other
@@ -335,16 +312,10 @@ public class Pdf {
             Future<byte[]> inputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getInputStream()));
             Future<byte[]> outputStreamToByteArray = executor.submit(streamToByteArrayTask(process.getErrorStream()));
 
-            if (command.contains("window-status")) {
-                logger.debug("Waiting for window-status waitFor: {}s...", this.windowStatusTimeout);
-                if (!process.waitFor(this.windowStatusTimeout, TimeUnit.SECONDS)) {
-                    // 关闭进程
-                    process.destroy();
-                    logger.error("Error generating pdf by window-status timeout, command: {}", command);
-                    throw new RuntimeException("window-status timeout");
-                }
-            } else {
-                process.waitFor();
+            if (!process.waitFor(this.timeout, TimeUnit.SECONDS)) {
+                process.destroy();
+                logger.error("PDF generation failed by defined timeout of {}s, command: {}", timeout, command);
+                throw new RuntimeException("PDF generation timeout by user. Try to increase the timeout.");
             }
 
             if (!successValues.contains(process.exitValue())) {
