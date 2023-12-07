@@ -254,17 +254,13 @@ class PdfIntegrationTests {
         Pdf pdf = new Pdf(new WrapperConfig(executable));
         pdf.addPageFromUrl("http://www.google.com");
 
-        /*
-         * After adding the `--window-status` parameter, wkhtmltopdf considers the current page to be loaded only when you execute `window.status = "complete"` in JavaScript. This is typically used in scenarios where page content is asynchronously generated. Omitting this parameter can result in incomplete rendering of the page content.
-         * If you include this parameter in the command but fail to complete the assignment in JavaScript, wkhtmltopdf will think that the current page has not finished loading and will continue to wait until a timeout occurs. At that point, an exception is thrown, with the default timeout being 10 seconds.
-         * This issue often arises when developers, unfamiliar with the features of wkhtmltopdf, add new functionality or dependencies using ES6 or syntax not supported by wkhtmltopdf's WebKit. This leads to a SyntaxError: Parse error during the parsing of JavaScript, interrupting the normal execution of JavaScript and ultimately preventing the completion of the `window.status` assignment.
-         * */
         pdf.addParam(new Param("--window-status", "complete"));
 
         String exceptionMessage = "";
         try {
             /*
-             * Since the `www.google.com` page does not have an assignment for `window.status`, it will indeed encounter a timeout exception. This simulates a situation where the `window.status` assignment fails.
+             * Due to the absence of the `window.status` assignment on the `www.google.com` page, a timeout exception is certain to occur.
+             * This simulates a scenario where the `window.status` assignment fails.
              * */
             pdf.getPDF();
         } catch (RuntimeException e) {
