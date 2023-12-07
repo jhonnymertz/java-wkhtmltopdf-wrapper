@@ -194,6 +194,7 @@ Known issues
 
 **Output of wkhtmltopdf is being added to resulting pdf** ([Issue #19](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/issues/19))
 - Starting from 1.1.10-RELEASE version, there is a method `saveAsDirect(String path)`, which executes wkhtmltopdf passing the `path` as output for wkhtmltopdf, instead of the standard input `-`. This saves the results directly to the specified file `path` without handling it with internal stdout.
+
 **Processes taking longer due to some wkhtmltopdf parameters, such as `window.status`, possibly resulting in timeouts** ([Pull #131](https://github.com/jhonnymertz/java-wkhtmltopdf-wrapper/pull/131))
 - Some parameters may cause wkhtmltopdf think that the page has not loaded and it will wait for longer, causing some internal processes of the library to be blocked. To avoid blocking the internal processes of the library, the given timeout (default 10s) was forcibly set to all the internal processes. This value can be increased by using `setTimeout(int seconds)`. Please refer to the [Timeouts](#timeouts) section for more information.
 - This issue is often caused by developers unfamiliar with wkhtmltopdf features and not related to the library itself. If you are experiencing something related, check the command being generated and the parameters you are using. Try to remove them one by one to find the one causing the issue. 
