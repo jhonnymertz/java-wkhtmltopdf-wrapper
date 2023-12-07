@@ -247,4 +247,26 @@ class PdfIntegrationTests {
 
         assertThat("document should be generated", pdfText, containsString("Google"));
     }
+
+    @Test
+    void testPdfWithWindowStatusTimeoutParameters() throws Exception {
+        final String executable = WrapperConfig.findExecutable();
+        Pdf pdf = new Pdf(new WrapperConfig(executable));
+        pdf.addPageFromUrl("http://www.google.com");
+
+        pdf.addParam(new Param("--window-status", "complete"));
+
+        String exceptionMessage = "";
+        try {
+            /*
+             * Due to the absence of the `window.status` assignment on the `www.google.com` page, a timeout exception is certain to occur.
+             * This simulates a scenario where the `window.status` assignment fails.
+             * */
+            pdf.getPDF();
+        } catch (RuntimeException e) {
+            exceptionMessage = e.getMessage();
+        }
+        assertThat("it should throw a PDF generation timeout exception", exceptionMessage, containsString("PDF generation timeout by user"));
+
+    }
 }
