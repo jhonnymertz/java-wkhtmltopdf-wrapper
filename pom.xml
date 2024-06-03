@@ -57,7 +57,7 @@
         <maven-javadoc-version>3.6.3</maven-javadoc-version>
         <maven-gpg-version>3.2.4</maven-gpg-version>
         <maven-source-version>3.3.1</maven-source-version>
-        <sonatype-staging-version>1.6.13</sonatype-staging-version>
+        <sonatype-staging-version>1.7.0</sonatype-staging-version>
     </properties>
 
     <dependencies>
