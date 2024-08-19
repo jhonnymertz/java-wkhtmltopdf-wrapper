@@ -53,7 +53,7 @@
         <hamcrest-version>1.3</hamcrest-version>
 
         <!-- Maven plugins -->
-        <maven-surefire-version>3.3.1</maven-surefire-version>
+        <maven-surefire-version>3.4.0</maven-surefire-version>
         <maven-javadoc-version>3.8.0</maven-javadoc-version>
         <maven-gpg-version>3.2.4</maven-gpg-version>
         <maven-source-version>3.3.1</maven-source-version>
