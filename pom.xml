@@ -45,7 +45,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j-version>2.0.17</slf4j-version>
-        <commons-lang-version>3.17.0</commons-lang-version>
+        <commons-lang-version>3.18.0</commons-lang-version>
         <commons-io-version>2.19.0</commons-io-version>
         <junit-version>5.13.3</junit-version>
         <pdfbox-version>3.0.5</pdfbox-version>
