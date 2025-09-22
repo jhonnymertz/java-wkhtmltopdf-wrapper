@@ -49,12 +49,12 @@
         <commons-io-version>2.20.0</commons-io-version>
         <junit-version>5.13.4</junit-version>
         <pdfbox-version>3.0.5</pdfbox-version>
-        <mockito-version>5.19.0</mockito-version>
+        <mockito-version>5.20.0</mockito-version>
         <hamcrest-version>1.3</hamcrest-version>
 
         <!-- Maven plugins -->
         <maven-surefire-version>3.5.4</maven-surefire-version>
-        <maven-javadoc-version>3.11.3</maven-javadoc-version>
+        <maven-javadoc-version>3.12.0</maven-javadoc-version>
         <maven-gpg-version>3.2.8</maven-gpg-version>
         <maven-source-version>3.3.1</maven-source-version>
         <sonatype-staging-version>1.7.0</sonatype-staging-version>
